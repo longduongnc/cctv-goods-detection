@@ -1,0 +1,22 @@
+# Datasets are NOT redistributed here — download them from their original sources.
+# See README: each has its own licence, and one of them has none at all.
+raw/
+clips/
+clips_clean/
+located/
+segmented/
+previews/
+frames/
+meta/
+*.mat
+*.pt
+index.json
+review.html
+review-lite.html
+video.html
+__pycache__/
+*.pyc
+.DS_Store
+
+# keep the result clips in media/
+!media/
