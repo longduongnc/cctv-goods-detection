@@ -20,3 +20,26 @@ __pycache__/
 
 # keep the result clips in media/
 !media/
+
+# --- Thêm cho document_vault (20/09/2026) ---
+# Dữ liệu thô quay tại cửa hàng: không commit, chỉ ghi đường dẫn trong vault
+data/
+footage/
+store_footage/
+
+# Bí mật
+.env
+.env.*
+*.key
+*.pem
+credentials*.json
+secrets*.json
+
+# Model weights
+*.pth
+*.onnx
+*.engine
+*.safetensors
+
+# Log chạy
+runs/
