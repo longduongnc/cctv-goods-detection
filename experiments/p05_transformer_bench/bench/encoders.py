@@ -10,6 +10,7 @@ import numpy as np
 import torch
 
 DATAGENT = Path(__file__).resolve().parents[2]
+FT_DIR = Path(__file__).resolve().parents[1] / "data" / "ft"
 BATCH = 64
 TIMM = {
     "dinov2_s": "vit_small_patch14_reg4_dinov2.lvd142m",
@@ -123,8 +124,14 @@ class HFImage(_Square):
         return f if isinstance(f, torch.Tensor) else f.pooler_output
 
 
+def checkpoint_path(name: str) -> Path:
+    """The checkpoint of an encoder named "ft:<run>" (data/ft/<run>/embedder.pt) or "ft:<path to a .pt file>"."""
+    spec = name[3:]
+    return Path(spec) if spec.endswith(".pt") else FT_DIR / spec / "embedder.pt"
+
+
 class FineTuned(_Square):
-    """A checkpoint of bench/finetune.py (name "ft:<path>"), fed at its training size with its backbone's statistics."""
+    """A checkpoint of bench/finetune.py, fed at its training size with its backbone's statistics."""
 
     def __init__(self, name, path, device):
         super().__init__(name, device)
@@ -143,14 +150,14 @@ class FineTuned(_Square):
 def licence_id(name: str) -> str:
     """The model card an encoder's licence is read from; a fine-tuned checkpoint carries its backbone's."""
     if name.startswith("ft:"):
-        state = torch.load(name[3:], map_location="cpu")
+        state = torch.load(checkpoint_path(name), map_location="cpu")
         return state["backbone"] if state["backbone_kind"] == "hf" else f"timm/{state['backbone']}"
     return HF_ID[name]
 
 
 def make_encoder(name: str, device: str) -> Encoder:
     if name.startswith("ft:"):
-        return FineTuned(name, name[3:], device)
+        return FineTuned(name, checkpoint_path(name), device)
     if name in TIMM:
         return TimmDino(name, TIMM[name], device)
     if name in HF:

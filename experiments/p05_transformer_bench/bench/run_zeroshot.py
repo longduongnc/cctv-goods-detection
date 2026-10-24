@@ -16,11 +16,11 @@ import torch
 
 from bench import gallery as gal
 from bench.calibrate import synthetic_threshold, synthetic_val
-from bench.encoders import HF_ID, make_encoder
+from bench.encoders import licence_id, make_encoder
 from bench.knn import knn_predict
 from bench.licenses import license_of
 from bench.metrics import BINS, rate, unit_report
-from bench.skus import HILO, TH_PAIR
+from bench.skus import HILO, HOLDOUT, TH_PAIR
 from bench.testset import crop_unit, load_units, negatives, read_frame, scored
 
 HERE = Path(__file__).resolve().parents[1]           # arch_bench/
@@ -31,6 +31,8 @@ GALLERIES = {
     "renders": lambda: gal.render_gallery(),
     "iphone_all": lambda: gal.iphone_gallery(None, include_hilo=False),
     "iphone_front": lambda: gal.iphone_gallery({"front"}, include_hilo=False),
+    "db": lambda: gal.db_gallery(()),                    # these two keep their own memmap in data/cache
+    "db_holdout": lambda: gal.db_gallery(HOLDOUT),
 }
 GROUPS = ("acc", "th", "suahat", "h_lt40", "h_40_60", "h_60_90", "h_ge90", "neg_rej", "real_acc")
 COLUMNS = (["encoder", "gallery"] + [g + s for g in GROUPS for s in ("", "_lo", "_hi", "_k", "_n")]
@@ -58,6 +60,20 @@ def answers(uids, pred, top1, threshold):
 def baseline_pred(units, name):
     """What the running pipeline answered, from the label files: yolo, db_long (DB before the grey fix), db_greyfix."""
     return {u.uid: getattr(u, BASELINES[name]) or None for u in units}
+
+
+def file_name(name):
+    """An encoder name as it can stand in a file name (ft:<run> -> ft_<run>)."""
+    return name.replace(":", "_").replace("/", "_")
+
+
+def by_sku(sku, ans):
+    """{sku: (answered right, crops)} for synthetic crops whose answers are ans[i]."""
+    counts = {}
+    for i, s in enumerate(sku):
+        k, n = counts.get(s, (0, 0))
+        counts[s] = (k + (ans[i] == s), n + 1)
+    return counts
 
 
 def _row(encoder, gallery, units, ans, **extra):
@@ -93,6 +109,8 @@ def _write_preds(path, units, raw, top1, ans):
 
 def get_gallery(name):
     """A gallery by its --galleries name, built once and kept in data/cache as a memmap."""
+    if name.startswith("db"):
+        return GALLERIES[name]()
     path = CACHE / f"gallery_{name}.npy"
     if not path.exists():
         CACHE.mkdir(parents=True, exist_ok=True)
@@ -151,7 +169,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     frames = {}
     unit_crops = np.stack([crop_unit(frames.setdefault(u.image, read_frame(SAMPLE, u.image)), u.box) for u in units])
-    val_crops, _ = synthetic_val()
+    val_crops, val_sku = synthetic_val()
     hilo_q = gal.hilo_queries()
     every = gal.iphone_gallery(None, include_hilo=True)
     hilo_ref = every.crops[every.sku == HILO]
@@ -170,14 +188,21 @@ def main():
         del enc
         torch.cuda.empty_cache()
         cpu_ms = ms_cpu(name, val_crops[:116])
-        lic = license_of(HF_ID[name])
+        lic = license_of(licence_id(name))
         log(name, "embedded; ms per crop gpu", gpu_ms, "cpu", cpu_ms)
         for gname, (g_emb, g_sku) in galleries.items():
-            _, v_top1 = knn_predict(v_emb, g_emb, g_sku)
+            v_pred, v_top1 = knn_predict(v_emb, g_emb, g_sku)
             thr = synthetic_threshold(v_top1)
+            synthetic = by_sku(val_sku, answers(range(len(v_pred)), v_pred, v_top1, thr))
+            new = not (out.parent / "synthetic_by_sku.csv").exists()
+            with open(out.parent / "synthetic_by_sku.csv", "a", encoding="utf-8", newline="") as f:
+                w = csv.writer(f)
+                if new:
+                    w.writerow(["encoder", "gallery", "sku", "k", "n"])
+                w.writerows([name, gname, s, k, n] for s, (k, n) in sorted(synthetic.items()))
             raw, top1 = knn_predict(u_emb, g_emb, g_sku)
             ans = answers(uids, raw, top1, thr)
-            _write_preds(preds / f"{name}__{gname}.csv", units, raw, top1, ans)
+            _write_preds(preds / f"{file_name(name)}__{gname}.csv", units, raw, top1, ans)
             p, t = knn_predict(hq_emb, g_emb, g_sku)
             before = answers(range(len(p)), p, t, thr).values()
             p, t = knn_predict(hq_emb, np.vstack([g_emb, hr_emb]), np.concatenate([g_sku, [HILO] * len(hr_emb)]))

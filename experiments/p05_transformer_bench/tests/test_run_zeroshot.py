@@ -27,3 +27,15 @@ def test_baselines_come_from_the_label_columns():
     assert baseline_pred([u], "yolo") == {"a": "TMP-MLK-TH-02"}
     assert baseline_pred([u], "db_long") == {"a": None}
     assert baseline_pred([u], "db_greyfix") == {"a": "TMP-MLK-TH-01"}
+
+
+def test_file_names_of_fine_tuned_encoders_are_plain():
+    from bench.run_zeroshot import file_name
+    assert file_name("ft:dinov2_s_holdout") == "ft_dinov2_s_holdout"
+    assert file_name("dinov2_s") == "dinov2_s"
+
+
+def test_synthetic_answers_are_counted_by_sku():
+    from bench.run_zeroshot import by_sku
+    counts = by_sku(np.array(["A", "A", "B"]), {0: "A", 1: None, 2: "A"})
+    assert counts == {"A": (1, 2), "B": (0, 1)}

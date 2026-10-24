@@ -46,3 +46,41 @@ def test_db_gallery_without_holdout_dataset_crops_keeps_their_references():
     full = gallery.db_gallery((), crops=48, background=4, others=4, references=2)
     assert np.any(np.isin(full.sku, HOLDOUT) & (full.source == "dataset"))
     assert set(full.sku[np.isin(full.source, ["background", "other_carton"])]) == {"none"}
+
+
+def test_a_run_name_points_at_its_checkpoint():
+    from bench.encoders import FT_DIR, checkpoint_path
+    assert checkpoint_path("ft:dinov2_s_holdout") == FT_DIR / "dinov2_s_holdout" / "embedder.pt"
+    assert checkpoint_path("ft:/tmp/x/embedder.pt").name == "embedder.pt"
+
+
+def test_report_counts_the_held_out_skus_on_real_and_synthetic(tmp_path):
+    import csv
+    import json
+    results, ft = tmp_path / "results", tmp_path / "ft"
+    (results / "preds").mkdir(parents=True)
+    (ft / "r1").mkdir(parents=True)
+    (ft / "r1" / "training.json").write_text(json.dumps(dict(backbone="b", holdout=list(HOLDOUT), epochs=10, best_epoch=7, train_minutes=42.0)))
+    with open(results / "zeroshot.csv", "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["encoder", "gallery", "acc", "acc_lo", "acc_hi"])
+        w.writerow(["ft:r1", "db_holdout", "0.9", "0.85", "0.93"])
+    with open(results / "preds" / "ft_r1__db_holdout.csv", "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["id", "label", "confidence", "height", "pred", "top1", "answer"])
+        w.writerow(["a", "TMP-MLK-TH-02", "khá", 50, "TMP-MLK-TH-02", 0.9, "TMP-MLK-TH-02"])
+        w.writerow(["b", "TMP-MLK-VNM-05", "chắc", 50, "TMP-MLK-VNM-04", 0.9, "TMP-MLK-VNM-04"])
+        w.writerow(["c", "TMP-MLK-VNM-05", "thấp", 50, "TMP-MLK-VNM-05", 0.9, "TMP-MLK-VNM-05"])
+        w.writerow(["d", "TMP-MLK-VNM-01", "chắc", 50, "TMP-MLK-VNM-01", 0.9, "TMP-MLK-VNM-01"])
+    with open(results / "synthetic_by_sku.csv", "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["encoder", "gallery", "sku", "k", "n"])
+        w.writerow(["ft:r1", "db_holdout", "TMP-MLK-TH-02", 150, 200])
+        w.writerow(["ft:r1", "db_holdout", "TMP-MLK-VNM-09", 50, 200])
+        w.writerow(["ft:r1", "db_holdout", "TMP-MLK-VNM-01", 200, 200])
+    rows = finetune.report(results, ["r1"], ft_dir=ft)
+    assert len(rows) == 1
+    r = rows[0]
+    assert (r["holdout_real_k"], r["holdout_real_n"]) == (1, 2)
+    assert (r["holdout_synth_k"], r["holdout_synth_n"]) == (200, 400)
+    assert (r["epochs"], r["best_epoch"], r["train_minutes"], r["holdout"]) == (10, 7, 42.0, "yes")

@@ -5,6 +5,7 @@ time budget, optionally with the three HOLDOUT SKUs left out of the training dat
     .venv/bin/python -m bench.finetune --backbone siglip2_b [--holdout] --out data/ft/siglip2_b
 """
 import argparse
+import csv
 import importlib.util
 import json
 import math
@@ -19,7 +20,7 @@ import torch
 import torch.nn.functional as F
 
 from bench.calibrate import DATASET, GREYFIX, HERE, long_data
-from bench.encoders import HF, TIMM
+from bench.encoders import FT_DIR, HF, TIMM
 from bench.skus import HOLDOUT, KIND_TO_SKU
 
 SIZE = 224
@@ -159,7 +160,7 @@ def train(backbone: str, holdout: tuple[str, ...], epochs: int = 10, out_dir: Pa
     steps_per_epoch = len(x_train) // batch
     total = epochs * steps_per_epoch
     gallery_idx = np.sort(np.random.default_rng(0).permutation(len(x_train))[:20000])
-    micro, step, best, history, t0 = batch, 0, -1.0, [], time.time()
+    micro, step, best, best_epoch, history, t0 = batch, 0, -1.0, 0, [], time.time()
     path = out_dir / "embedder.pt"
     prefetch = ThreadPoolExecutor(1)
     for epoch in range(1, epochs + 1):
@@ -208,7 +209,7 @@ def train(backbone: str, holdout: tuple[str, ...], epochs: int = 10, out_dir: Pa
                             val_accuracy_types=round(acc, 4), micro_batch=micro))
         print(history[-1], flush=True)
         if acc >= best:
-            best = acc
+            best, best_epoch = acc, epoch
             torch.save(dict(weights={k: v.cpu() for k, v in model.state_dict().items()}, backbone=backbone, backbone_kind=model.kind,
                             dim=model.dim, size=SIZE, mean=mean, std=std, classes=classes, holdout=list(holdout), epochs=epochs,
                             best_epoch=epoch, history=history), path)
@@ -218,21 +219,73 @@ def train(backbone: str, holdout: tuple[str, ...], epochs: int = 10, out_dir: Pa
     torch.save(state, path)
     (out_dir / "training.json").write_text(json.dumps(dict(backbone=backbone, holdout=list(holdout), epochs=epochs, batch=batch,
                                                            train_crops=len(x_train), val_crops=len(x_val), train_minutes=minutes,
-                                                           best_val_accuracy_types=best, history=history), indent=1))
+                                                           best_epoch=best_epoch, best_val_accuracy_types=best, history=history), indent=1))
     for f in MMAP.glob(f"crops_{os.getpid()}_*.npy"):
         f.unlink()
     print(f"done in {(time.time() - started) / 60:.1f} min; best validation type accuracy {best:.4f} -> {path}", flush=True)
     return path
 
 
+REPORT_COLUMNS = ["run", "backbone", "holdout", "epochs", "best_epoch", "train_minutes", "gallery", "acc", "acc_lo", "acc_hi",
+                  "holdout_real_k", "holdout_real_n", "holdout_real", "holdout_real_lo", "holdout_real_hi",
+                  "holdout_synth_k", "holdout_synth_n", "holdout_synth", "holdout_synth_lo", "holdout_synth_hi"]
+
+
+def report(results: Path, runs: list[str], ft_dir: Path = FT_DIR) -> list[dict]:
+    """One row per (fine-tuned run, gallery) scored by run_zeroshot: training time and epochs, accuracy on all real units,
+    and accuracy on the three HOLDOUT SKUs alone, on the real units labelled khá/chắc and on the synthetic val crops."""
+    from bench.metrics import rate
+    from bench.run_zeroshot import file_name
+    with open(results / "zeroshot.csv", encoding="utf-8", newline="") as f:
+        scored = {(r["encoder"], r["gallery"]): r for r in csv.DictReader(f)}
+    with open(results / "synthetic_by_sku.csv", encoding="utf-8", newline="") as f:
+        synthetic = list(csv.DictReader(f))
+    rows = []
+    for run in runs:
+        meta = json.loads((ft_dir / run / "training.json").read_text())
+        if "best_epoch" not in meta:              # runs started before best_epoch was written: the last of the best
+            best = max(h["val_accuracy_types"] for h in meta["history"])
+            meta["best_epoch"] = max(h["epoch"] for h in meta["history"] if h["val_accuracy_types"] == best)
+        name = f"ft:{run}"
+        for gallery in ("renders", "db", "db_holdout"):
+            if (name, gallery) not in scored:
+                continue
+            z = scored[name, gallery]
+            with open(results / "preds" / f"{file_name(name)}__{gallery}.csv", encoding="utf-8", newline="") as f:
+                held = [p for p in csv.DictReader(f) if p["label"] in HOLDOUT and p["confidence"] in ("khá", "chắc")]
+            real = rate(sum(p["answer"] == p["label"] for p in held), len(held))
+            s = [r for r in synthetic if r["encoder"] == name and r["gallery"] == gallery and r["sku"] in HOLDOUT]
+            synth = rate(sum(int(r["k"]) for r in s), sum(int(r["n"]) for r in s))
+            row = dict(run=run, backbone=meta["backbone"], holdout="yes" if meta["holdout"] else "no", epochs=meta["epochs"],
+                       best_epoch=meta["best_epoch"], train_minutes=meta["train_minutes"], gallery=gallery,
+                       acc=z["acc"], acc_lo=z["acc_lo"], acc_hi=z["acc_hi"])
+            for key, (k, n, lo, hi) in (("holdout_real", real), ("holdout_synth", synth)):
+                row.update({f"{key}_k": k, f"{key}_n": n, key: round(k / n, 4) if n else "",
+                            f"{key}_lo": round(lo, 4) if n else "", f"{key}_hi": round(hi, 4) if n else ""})
+            rows.append(row)
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--backbone", required=True, help="encoder name (dinov2_s, siglip2_b, ...) or a timm / Hugging Face id")
+    ap.add_argument("--backbone", help="encoder name (dinov2_s, siglip2_b, ...) or a timm / Hugging Face id")
     ap.add_argument("--holdout", action="store_true", help=f"leave {', '.join(HOLDOUT)} out of the training data")
     ap.add_argument("--epochs", type=int, default=10)
     ap.add_argument("--batch", type=int, default=192)
-    ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--out", type=Path)
+    ap.add_argument("--report", nargs="+", metavar="RUN", help="write results/finetune.csv for these runs of data/ft/ instead")
     args = ap.parse_args()
+    if args.report:
+        results = HERE / "results"
+        rows = report(results, args.report)
+        with open(results / "finetune.csv", "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=REPORT_COLUMNS)
+            w.writeheader()
+            w.writerows(rows)
+        (results / "ft").mkdir(exist_ok=True)
+        for run in args.report:
+            (results / "ft" / f"{run}_training.json").write_text((FT_DIR / run / "training.json").read_text())
+        return
     train(args.backbone, HOLDOUT if args.holdout else (), epochs=args.epochs, out_dir=args.out, batch=args.batch)
 
 
