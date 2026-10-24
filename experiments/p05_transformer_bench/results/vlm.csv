@@ -1,0 +1,4 @@
+model,n,answered,right,acc,acc_lo,acc_hi,right_of_answered,ms_per_crop
+yolo,102,102,90,0.8824,0.8055,0.9314,0.8824,
+qwen,102,22,18,0.1765,0.1146,0.2618,0.8182,269.5
+florence,102,0,0,0.0,0.0,0.0363,,144.5
