@@ -54,26 +54,26 @@ Mỗi tỷ lệ: tỷ lệ (khoảng tin cậy 95% Wilson). Chỉ số 1 và 4 t
 
 Các hộp thật có nhãn khá/chắc của TH-02, VNM-09 và VNM-05, với mọi model đã fine-tune (bản đủ 12 SKU để đối chiếu). Phiếu none thắng: các ảnh gần nhất trong kho là nền trống hoặc hộp hãng khác. Dưới ngưỡng: có tên nhưng độ giống thấp hơn ngưỡng đặt trên ảnh mô phỏng.
 
-| Model | Kho | Hộp | Đúng | Phiếu none thắng | Dưới ngưỡng | Gọi thành SKU khác |
-|---|---|---|---|---|---|---|
-| ft:dinov2_s | renders | 39 | 38 | 0 | 0 | VNM-08 ×1 |
-| ft:dinov2_s | db | 39 | 38 | 0 | 0 | VNM-08 ×1 |
-| ft:dinov2_s | db_holdout | 39 | 31 | 0 | 7 | VNM-08 ×1 |
-| ft:dinov2_s_holdout | renders | 39 | 9 | 0 | 26 | TH-01 ×3, VNM-08 ×1 |
-| ft:dinov2_s_holdout | db | 39 | 12 | 22 | 2 | TH-01 ×2, VNM-08 ×1 |
-| ft:dinov2_s_holdout | db_holdout | 39 | 0 | 31 | 0 | VNM-10 ×4, TH-01 ×3, VNM-08 ×1 |
-| ft:siglip2_b | renders | 39 | 38 | 0 | 0 | VNM-08 ×1 |
-| ft:siglip2_b | db | 39 | 38 | 0 | 0 | VNM-08 ×1 |
-| ft:siglip2_b | db_holdout | 39 | 34 | 0 | 4 | VNM-08 ×1 |
-| ft:siglip2_b_holdout | renders | 39 | 5 | 0 | 30 | TH-01 ×2, VNM-08 ×1, VNM-09 ×1 |
-| ft:siglip2_b_holdout | db | 39 | 6 | 25 | 4 | TH-01 ×3, VNM-08 ×1 |
-| ft:siglip2_b_holdout | db_holdout | 39 | 1 | 27 | 0 | VNM-10 ×6, TH-01 ×3, VNM-08 ×2 |
-| ft:siglip2_so400m | renders | 39 | 38 | 0 | 0 | VNM-08 ×1 |
-| ft:siglip2_so400m | db | 39 | 38 | 0 | 0 | VNM-08 ×1 |
-| ft:siglip2_so400m | db_holdout | 39 | 35 | 0 | 0 | TH-01 ×3, VNM-08 ×1 |
-| ft:siglip2_so400m_holdout | renders | 39 | 20 | 0 | 1 | VNM-06 ×7, VNM-08 ×4, VNM-10 ×4, TH-01 ×3 |
-| ft:siglip2_so400m_holdout | db | 39 | 11 | 16 | 8 | TH-01 ×3, VNM-08 ×1 |
-| ft:siglip2_so400m_holdout | db_holdout | 39 | 0 | 31 | 0 | TH-01 ×3, VNM-08 ×3, VNM-06 ×2 |
+| Model | Kho | Hộp | Đúng | Đúng theo SKU | Phiếu none thắng | Dưới ngưỡng | Gọi thành SKU khác |
+|---|---|---|---|---|---|---|---|
+| ft:dinov2_s | renders | 39 | 38 | TH-02 3/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | VNM-08 ×1 |
+| ft:dinov2_s | db | 39 | 38 | TH-02 3/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | VNM-08 ×1 |
+| ft:dinov2_s | db_holdout | 39 | 31 | TH-02 3/3, VNM-09 8/9, VNM-05 20/27 | 0 | 7 | VNM-08 ×1 |
+| ft:dinov2_s_holdout | renders | 39 | 9 | TH-02 0/3, VNM-09 0/9, VNM-05 9/27 | 0 | 26 | TH-01 ×3, VNM-08 ×1 |
+| ft:dinov2_s_holdout | db | 39 | 12 | TH-02 1/3, VNM-09 2/9, VNM-05 9/27 | 22 | 2 | TH-01 ×2, VNM-08 ×1 |
+| ft:dinov2_s_holdout | db_holdout | 39 | 0 | TH-02 0/3, VNM-09 0/9, VNM-05 0/27 | 31 | 0 | VNM-10 ×4, TH-01 ×3, VNM-08 ×1 |
+| ft:siglip2_b | renders | 39 | 38 | TH-02 3/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | VNM-08 ×1 |
+| ft:siglip2_b | db | 39 | 38 | TH-02 3/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | VNM-08 ×1 |
+| ft:siglip2_b | db_holdout | 39 | 34 | TH-02 3/3, VNM-09 8/9, VNM-05 23/27 | 0 | 4 | VNM-08 ×1 |
+| ft:siglip2_b_holdout | renders | 39 | 5 | TH-02 1/3, VNM-09 4/9, VNM-05 0/27 | 0 | 30 | TH-01 ×2, VNM-08 ×1, VNM-09 ×1 |
+| ft:siglip2_b_holdout | db | 39 | 6 | TH-02 0/3, VNM-09 5/9, VNM-05 1/27 | 25 | 4 | TH-01 ×3, VNM-08 ×1 |
+| ft:siglip2_b_holdout | db_holdout | 39 | 1 | TH-02 0/3, VNM-09 1/9, VNM-05 0/27 | 27 | 0 | VNM-10 ×6, TH-01 ×3, VNM-08 ×2 |
+| ft:siglip2_so400m | renders | 39 | 38 | TH-02 3/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | VNM-08 ×1 |
+| ft:siglip2_so400m | db | 39 | 38 | TH-02 3/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | VNM-08 ×1 |
+| ft:siglip2_so400m | db_holdout | 39 | 35 | TH-02 0/3, VNM-09 8/9, VNM-05 27/27 | 0 | 0 | TH-01 ×3, VNM-08 ×1 |
+| ft:siglip2_so400m_holdout | renders | 39 | 20 | TH-02 0/3, VNM-09 0/9, VNM-05 20/27 | 0 | 1 | VNM-06 ×7, VNM-08 ×4, VNM-10 ×4, TH-01 ×3 |
+| ft:siglip2_so400m_holdout | db | 39 | 11 | TH-02 0/3, VNM-09 4/9, VNM-05 7/27 | 16 | 8 | TH-01 ×3, VNM-08 ×1 |
+| ft:siglip2_so400m_holdout | db_holdout | 39 | 0 | TH-02 0/3, VNM-09 0/9, VNM-05 0/27 | 31 | 0 | TH-01 ×3, VNM-08 ×3, VNM-06 ×2 |
 
 ## VLM ý kiến thứ hai (hộp YOLO gọi vào cặp TH hoặc nhóm Sữa hạt)
 

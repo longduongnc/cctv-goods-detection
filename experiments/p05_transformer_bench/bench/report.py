@@ -61,12 +61,14 @@ def _new_sku(row, finetune):
 def held_out_named(path) -> dict:
     """What the real units of the three held-out SKUs (khá/chắc) were named: right, no answer because the "none" votes
     won (the nearest gallery images were empty shelf or other brands), no answer because the best carton was below the
-    synthetic threshold, or another SKU (counted by SKU)."""
-    out = dict(n=0, right=0, none_vote=0, below_threshold=0, other={})
+    synthetic threshold, or another SKU (counted by SKU); right_by_sku is (right, units) for each held-out SKU."""
+    out = dict(n=0, right=0, none_vote=0, below_threshold=0, other={}, right_by_sku={})
     for r in _read(path):
         if r["label"] not in HOLDOUT or r["confidence"] not in ("khá", "chắc"):
             continue
         out["n"] += 1
+        k, n = out["right_by_sku"].get(r["label"].replace("TMP-MLK-", ""), (0, 0))
+        out["right_by_sku"][r["label"].replace("TMP-MLK-", "")] = (k + (r["answer"] == r["label"]), n + 1)
         if r["answer"] == r["label"]:
             out["right"] += 1
         elif not r["pred"]:
@@ -109,13 +111,16 @@ def summarize(results_dir: Path) -> str:
         if r["encoder"].startswith("ft:") and path.exists():
             h = held_out_named(path)
             other = ", ".join(f"{s} ×{k}" for s, k in sorted(h["other"].items(), key=lambda x: (-x[1], x[0]))) or "—"
-            held.append([r["encoder"], r["gallery"]] + [str(h[k]) for k in ("n", "right", "none_vote", "below_threshold")] + [other])
+            by_sku = ", ".join(f"{s} {k}/{n}" for s, (k, n) in sorted(h["right_by_sku"].items(),
+                                                                      key=lambda x: HOLDOUT.index("TMP-MLK-" + x[0])))
+            held.append([r["encoder"], r["gallery"], str(h["n"]), str(h["right"]), by_sku or "—"]
+                        + [str(h[k]) for k in ("none_vote", "below_threshold")] + [other])
     if held:
         lines += ["", "## 3 SKU bỏ ra khi train: hộp thật của chúng bị gọi thành gì", "",
                   "Các hộp thật có nhãn khá/chắc của TH-02, VNM-09 và VNM-05, với mọi model đã fine-tune (bản đủ 12 SKU để "
                   "đối chiếu). Phiếu none thắng: các ảnh gần nhất trong kho là nền trống hoặc hộp hãng khác. Dưới ngưỡng: có "
                   "tên nhưng độ giống thấp hơn ngưỡng đặt trên ảnh mô phỏng.", ""]
-        lines += _table(["Model", "Kho", "Hộp", "Đúng", "Phiếu none thắng", "Dưới ngưỡng", "Gọi thành SKU khác"], held)
+        lines += _table(["Model", "Kho", "Hộp", "Đúng", "Đúng theo SKU", "Phiếu none thắng", "Dưới ngưỡng", "Gọi thành SKU khác"], held)
     if (results / "vlm.csv").exists():
         vrows = []
         for v in _read(results / "vlm.csv"):

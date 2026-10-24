@@ -58,7 +58,8 @@ def test_held_out_units_are_counted_by_what_they_were_named(tmp_path):
     from bench.report import held_out_named
     _held_out_preds(tmp_path / "ft_r1__db.csv")
     assert held_out_named(tmp_path / "ft_r1__db.csv") == dict(n=4, right=1, none_vote=1, below_threshold=1,
-                                                              other={"VNM-08": 1})
+                                                              other={"VNM-08": 1},
+                                                              right_by_sku={"TH-02": (1, 1), "VNM-09": (0, 1), "VNM-05": (0, 2)})
 
 
 def test_the_summary_says_what_the_held_out_units_were_named(tmp_path):
@@ -67,7 +68,7 @@ def test_the_summary_says_what_the_held_out_units_were_named(tmp_path):
         csv.DictWriter(f, fieldnames=COLUMNS, restval="").writerow(dict(encoder="ft:r1", gallery="db", acc=0.5, acc_k=1, acc_n=2))
     _held_out_preds(results / "preds" / "ft_r1__db.csv")
     section = summarize(results).split("## 3 SKU bỏ ra khi train")[1]
-    assert "| ft:r1 | db | 4 | 1 | 1 | 1 | VNM-08 ×1 |" in section.splitlines()
+    assert "| ft:r1 | db | 4 | 1 | TH-02 1/1, VNM-09 0/1, VNM-05 0/2 | 1 | 1 | VNM-08 ×1 |" in section.splitlines()
 
 
 def test_a_clear_win_is_marked(tmp_path):
