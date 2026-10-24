@@ -1,0 +1,5 @@
+transformers
+accelerate
+pytest
+huggingface_hub
+qwen-vl-utils

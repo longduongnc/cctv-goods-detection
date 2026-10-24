@@ -1,0 +1,11 @@
+accelerate==1.15.0
+click==8.5.0
+hf-xet==1.7.0
+huggingface_hub==2.3.0
+iniconfig==2.3.1
+pluggy==1.7.0
+pytest==9.1.1
+qwen-vl-utils==0.0.14
+safetensors==0.8.0
+tokenizers==0.23.3
+transformers==5.20.2
