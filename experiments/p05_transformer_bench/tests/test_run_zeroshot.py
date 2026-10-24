@@ -39,3 +39,22 @@ def test_synthetic_answers_are_counted_by_sku():
     from bench.run_zeroshot import by_sku
     counts = by_sku(np.array(["A", "A", "B"]), {0: "A", 1: None, 2: "A"})
     assert counts == {"A": (1, 2), "B": (0, 1)}
+
+
+def test_retiming_rewrites_only_the_timing_of_that_encoder(tmp_path):
+    from bench.run_zeroshot import COLUMNS, retime
+    out = tmp_path / "zeroshot.csv"
+    with open(out, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=COLUMNS, restval="")
+        w.writeheader()
+        w.writerow(dict(encoder="ft:dinov2_s", gallery="renders", acc=0.9, ms_gpu=4.866, ms_cpu=28.6))
+        w.writerow(dict(encoder="ft:dinov2_s", gallery="db", acc=0.8, ms_gpu=4.866, ms_cpu=28.6))
+        w.writerow(dict(encoder="dinov2_s", gallery="renders", acc=0.2, ms_gpu=1.71, ms_cpu=28.4))
+    retime(out, "ft:dinov2_s", 1.9, 27.0)
+    with open(out, encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert [(r["encoder"], r["gallery"], r["acc"], r["ms_gpu"], r["ms_cpu"]) for r in rows] == [
+        ("ft:dinov2_s", "renders", "0.9", "1.9", "27.0"),
+        ("ft:dinov2_s", "db", "0.8", "1.9", "27.0"),
+        ("dinov2_s", "renders", "0.2", "1.71", "28.4")]
+    assert list(rows[0]) == COLUMNS

@@ -4,6 +4,8 @@ skips the pairs already there. Unit by unit answers go to preds/ next to --out.
 
     .venv/bin/python -m bench.run_zeroshot --encoders dinov2_s,clip_l --galleries renders,iphone_all,iphone_front \
         --out results/zeroshot.csv
+
+With --retime it only measures ms per crop again, for encoders whose rows were timed while another job had the GPU.
 """
 import argparse
 import csv
@@ -99,6 +101,20 @@ def _append(out, row):
         w.writerow(row)
 
 
+def retime(out: Path, name: str, gpu_ms, cpu_ms):
+    """New ms_gpu and ms_cpu in every row of `out` for this encoder; the other rows stay as they are."""
+    with open(out, encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        fields, rows = reader.fieldnames, list(reader)
+    for r in rows:
+        if r["encoder"] == name:
+            r.update(ms_gpu=gpu_ms, ms_cpu=cpu_ms)
+    with open(out, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
+
+
 def _write_preds(path, units, raw, top1, ans):
     with open(path, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
@@ -148,8 +164,22 @@ def main():
     ap.add_argument("--encoders", required=True)
     ap.add_argument("--galleries", default="renders,iphone_all,iphone_front")
     ap.add_argument("--out", type=Path, default=HERE / "results" / "zeroshot.csv")
+    ap.add_argument("--retime", action="store_true",
+                    help="only measure ms_gpu and ms_cpu again for --encoders and write them into their rows of --out")
     args = ap.parse_args()
     out = args.out
+    if args.retime:
+        val_crops, _ = synthetic_val()
+        for name in args.encoders.split(","):
+            enc = make_encoder(name, "cuda")
+            enc.embed(val_crops[:704])                   # warm, as a scoring run is by the time it measures
+            gpu_ms = ms_gpu(enc, val_crops[:704])
+            del enc
+            torch.cuda.empty_cache()
+            cpu_ms = ms_cpu(name, val_crops[:116])
+            retime(out, name, gpu_ms, cpu_ms)
+            log(name, "re-timed; ms per crop gpu", gpu_ms, "cpu", cpu_ms)
+        return
     preds = out.parent / "preds"
     preds.mkdir(parents=True, exist_ok=True)
     labels = HERE / "labels"
