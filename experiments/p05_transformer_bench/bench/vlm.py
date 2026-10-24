@@ -91,7 +91,10 @@ class QwenVL:
 
 
 class Florence:
-    def __init__(self, model_id: str = "microsoft/Florence-2-large", device: str = "cuda"):
+    """Florence-2-large in the native transformers format (florence-community converted microsoft/Florence-2-large;
+    the Microsoft repo itself needs its own remote code, which the native class cannot read)."""
+
+    def __init__(self, model_id: str = "florence-community/Florence-2-large", device: str = "cuda"):
         from transformers import AutoProcessor, Florence2ForConditionalGeneration
         self.processor = AutoProcessor.from_pretrained(model_id)
         self.model = Florence2ForConditionalGeneration.from_pretrained(model_id, dtype=torch.float16).to(device).eval()
