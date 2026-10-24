@@ -8,6 +8,7 @@ from pathlib import Path
 
 from bench.metrics import rate
 from bench.run_zeroshot import file_name
+from bench.skus import HOLDOUT
 from bench.stats import mcnemar_exact
 
 HERE = Path(__file__).resolve().parents[1]           # arch_bench/
@@ -57,6 +58,27 @@ def _new_sku(row, finetune):
     return "—"
 
 
+def held_out_named(path) -> dict:
+    """What the real units of the three held-out SKUs (khá/chắc) were named: right, no answer because the "none" votes
+    won (the nearest gallery images were empty shelf or other brands), no answer because the best carton was below the
+    synthetic threshold, or another SKU (counted by SKU)."""
+    out = dict(n=0, right=0, none_vote=0, below_threshold=0, other={})
+    for r in _read(path):
+        if r["label"] not in HOLDOUT or r["confidence"] not in ("khá", "chắc"):
+            continue
+        out["n"] += 1
+        if r["answer"] == r["label"]:
+            out["right"] += 1
+        elif not r["pred"]:
+            out["none_vote"] += 1
+        elif not r["answer"]:
+            out["below_threshold"] += 1
+        else:
+            sku = r["answer"].replace("TMP-MLK-", "")
+            out["other"][sku] = out["other"].get(sku, 0) + 1
+    return out
+
+
 def _table(header, rows):
     return ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)] + ["| " + " | ".join(r) + " |" for r in rows]
 
@@ -81,6 +103,19 @@ def summarize(results_dir: Path) -> str:
              "Mỗi tỷ lệ: tỷ lệ (khoảng tin cậy 95% Wilson). Chỉ số 1 và 4 tính trên các hộp thật có nhãn khá/chắc; một hộp "
              "không có câu trả lời (kNN ra none, dưới ngưỡng mô phỏng) tính là sai. McNemar trên cùng các hộp: b = model đúng "
              "mà mốc sai, c = ngược lại; \"hơn rõ\" khi p < 0,05 và b > c.", ""] + _table(header, rows)
+    held = []
+    for r in _read(results / "zeroshot.csv"):
+        path = preds / f"{file_name(r['encoder'])}__{r['gallery']}.csv"
+        if r["encoder"].startswith("ft:") and path.exists():
+            h = held_out_named(path)
+            other = ", ".join(f"{s} ×{k}" for s, k in sorted(h["other"].items(), key=lambda x: (-x[1], x[0]))) or "—"
+            held.append([r["encoder"], r["gallery"]] + [str(h[k]) for k in ("n", "right", "none_vote", "below_threshold")] + [other])
+    if held:
+        lines += ["", "## 3 SKU bỏ ra khi train: hộp thật của chúng bị gọi thành gì", "",
+                  "Các hộp thật có nhãn khá/chắc của TH-02, VNM-09 và VNM-05, với mọi model đã fine-tune (bản đủ 12 SKU để "
+                  "đối chiếu). Phiếu none thắng: các ảnh gần nhất trong kho là nền trống hoặc hộp hãng khác. Dưới ngưỡng: có "
+                  "tên nhưng độ giống thấp hơn ngưỡng đặt trên ảnh mô phỏng.", ""]
+        lines += _table(["Model", "Kho", "Hộp", "Đúng", "Phiếu none thắng", "Dưới ngưỡng", "Gọi thành SKU khác"], held)
     if (results / "vlm.csv").exists():
         vrows = []
         for v in _read(results / "vlm.csv"):

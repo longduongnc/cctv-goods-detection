@@ -44,6 +44,25 @@ Mỗi tỷ lệ: tỷ lệ (khoảng tin cậy 95% Wilson). Chỉ số 1 và 4 t
 | ft:siglip2_b_holdout | db | 75,2% (69,4–80,2) | 67,6% (51,5–80,4) | 74,2% (62,6–83,3) | 16,0% (6,4–34,7) | 75,0% (56,6–87,3) | 77,1% (68,8–83,8) | 76,4% (65,4–84,7) | 64,3% (45,8–79,3) | 3 SKU bỏ ra — thật 15,4% (7,2–29,7); mô phỏng 81,9% (80,9–82,8) | 2,381 / 64,3 | apache-2.0 | b=3, c=48, p=0,000 — kém rõ | b=6, c=42, p=0,000 — kém rõ |
 | ft:siglip2_b_holdout | db_holdout | 79,7% (74,2–84,2) | 91,9% (78,7–97,2) | 74,2% (62,6–83,3) | 16,0% (6,4–34,7) | 78,6% (60,5–89,8) | 74,6% (66,0–81,6) | 86,1% (76,3–92,3) | 85,7% (68,5–94,3) | 3 SKU bỏ ra — thật 2,6% (0,5–13,2); mô phỏng 27,7% (26,6–28,8) | 2,381 / 64,3 | apache-2.0 | b=3, c=37, p=0,000 — kém rõ | b=12, c=37, p=0,000 — kém rõ |
 
+## 3 SKU bỏ ra khi train: hộp thật của chúng bị gọi thành gì
+
+Các hộp thật có nhãn khá/chắc của TH-02, VNM-09 và VNM-05, với mọi model đã fine-tune (bản đủ 12 SKU để đối chiếu). Phiếu none thắng: các ảnh gần nhất trong kho là nền trống hoặc hộp hãng khác. Dưới ngưỡng: có tên nhưng độ giống thấp hơn ngưỡng đặt trên ảnh mô phỏng.
+
+| Model | Kho | Hộp | Đúng | Phiếu none thắng | Dưới ngưỡng | Gọi thành SKU khác |
+|---|---|---|---|---|---|---|
+| ft:dinov2_s | renders | 39 | 38 | 0 | 0 | VNM-08 ×1 |
+| ft:dinov2_s | db | 39 | 38 | 0 | 0 | VNM-08 ×1 |
+| ft:dinov2_s | db_holdout | 39 | 31 | 0 | 7 | VNM-08 ×1 |
+| ft:dinov2_s_holdout | renders | 39 | 9 | 0 | 26 | TH-01 ×3, VNM-08 ×1 |
+| ft:dinov2_s_holdout | db | 39 | 12 | 22 | 2 | TH-01 ×2, VNM-08 ×1 |
+| ft:dinov2_s_holdout | db_holdout | 39 | 0 | 31 | 0 | VNM-10 ×4, TH-01 ×3, VNM-08 ×1 |
+| ft:siglip2_b | renders | 39 | 38 | 0 | 0 | VNM-08 ×1 |
+| ft:siglip2_b | db | 39 | 38 | 0 | 0 | VNM-08 ×1 |
+| ft:siglip2_b | db_holdout | 39 | 34 | 0 | 4 | VNM-08 ×1 |
+| ft:siglip2_b_holdout | renders | 39 | 5 | 0 | 30 | TH-01 ×2, VNM-08 ×1, VNM-09 ×1 |
+| ft:siglip2_b_holdout | db | 39 | 6 | 25 | 4 | TH-01 ×3, VNM-08 ×1 |
+| ft:siglip2_b_holdout | db_holdout | 39 | 1 | 27 | 0 | VNM-10 ×6, TH-01 ×3, VNM-08 ×2 |
+
 ## VLM ý kiến thứ hai (hộp YOLO gọi vào cặp TH hoặc nhóm Sữa hạt)
 
 | Model | Hộp | Trả lời | 1. Đúng (không trả lời = sai) | Đúng trong số trả lời | ms mỗi hộp | so với YOLO | so với DB sửa grey |

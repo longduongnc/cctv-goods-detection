@@ -42,6 +42,34 @@ def test_the_table_compares_each_model_with_yolo_on_the_same_units(tmp_path):
     assert "hơn rõ" not in row                      # p = 0,5 with two discordant units
 
 
+def _held_out_preds(path):
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["id", "label", "confidence", "height", "pred", "top1", "answer"])
+        w.writerow(["a", "TMP-MLK-TH-02", "khá", 50, "TMP-MLK-TH-02", 0.9, "TMP-MLK-TH-02"])      # right
+        w.writerow(["b", "TMP-MLK-VNM-05", "chắc", 50, "", 0.4, ""])                             # the none votes won
+        w.writerow(["c", "TMP-MLK-VNM-05", "chắc", 50, "TMP-MLK-VNM-05", 0.3, ""])               # below the threshold
+        w.writerow(["d", "TMP-MLK-VNM-09", "khá", 50, "TMP-MLK-VNM-08", 0.9, "TMP-MLK-VNM-08"])  # another SKU
+        w.writerow(["e", "TMP-MLK-VNM-09", "thấp", 50, "", 0.4, ""])                             # not confident: left out
+        w.writerow(["f", "TMP-MLK-VNM-01", "chắc", 50, "", 0.4, ""])                             # not held out: left out
+
+
+def test_held_out_units_are_counted_by_what_they_were_named(tmp_path):
+    from bench.report import held_out_named
+    _held_out_preds(tmp_path / "ft_r1__db.csv")
+    assert held_out_named(tmp_path / "ft_r1__db.csv") == dict(n=4, right=1, none_vote=1, below_threshold=1,
+                                                              other={"VNM-08": 1})
+
+
+def test_the_summary_says_what_the_held_out_units_were_named(tmp_path):
+    results = _results(tmp_path)
+    with open(results / "zeroshot.csv", "a", encoding="utf-8", newline="") as f:
+        csv.DictWriter(f, fieldnames=COLUMNS, restval="").writerow(dict(encoder="ft:r1", gallery="db", acc=0.5, acc_k=1, acc_n=2))
+    _held_out_preds(results / "preds" / "ft_r1__db.csv")
+    section = summarize(results).split("## 3 SKU bỏ ra khi train")[1]
+    assert "| ft:r1 | db | 4 | 1 | 1 | 1 | VNM-08 ×1 |" in section.splitlines()
+
+
 def test_a_clear_win_is_marked(tmp_path):
     results = _results(tmp_path)
     many = {f"u{i}": RIGHT for i in range(20)}
