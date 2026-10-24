@@ -1,0 +1,3 @@
+# check sheets and crop montages are written to results/ on the GPU machine; no image goes into the repo
+results/*.png
+results/*.jpg
