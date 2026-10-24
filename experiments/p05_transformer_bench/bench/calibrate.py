@@ -38,9 +38,11 @@ def _cut(task):
     return [crop_unit(img, b) for b in boxes]
 
 
-def cut_rows(rows: list[dict], path: Path, head: np.ndarray | None = None, workers: int = 12) -> np.ndarray:
+def cut_rows(rows: list[dict], path: Path, head: np.ndarray | None = None, workers: int = 12, batch: int = 256) -> np.ndarray:
     """Cut every row's dataset box (x0, y0, x1, y1) with crop_unit into a .npy at `path`, after the crops in `head`;
-    returns it as a memmap. Written as a .part file first, so a stopped run never leaves a half-filled cache."""
+    returns it as a memmap. Written as a .part file first, so a stopped run never leaves a half-filled cache. Images go
+    to the workers `batch` at a time: handing them all at once let finished crops pile up in memory faster than they
+    were written (the 43 GB gallery was OOM-killed under a 20 GB limit)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     first = 0 if head is None else len(head)
     part = path.with_name(path.stem + ".part.npy")
@@ -50,13 +52,16 @@ def cut_rows(rows: list[dict], path: Path, head: np.ndarray | None = None, worke
     by_image = {}
     for i, r in enumerate(rows):
         by_image.setdefault((r["split"], r["image"]), []).append(i)
-    tasks = [(str(DATASET / "images" / split / name), [(rows[i]["x0"], rows[i]["y0"], rows[i]["x1"] - rows[i]["x0"],
-                                                       rows[i]["y1"] - rows[i]["y0"]) for i in idx])
-             for (split, name), idx in by_image.items()]
+    images = list(by_image.items())
     with ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn")) as ex:    # no fork of a threaded process
-        for idx, got in zip(by_image.values(), ex.map(_cut, tasks, chunksize=8)):
-            for i, c in zip(idx, got):
-                crops[first + i] = c
+        for start in range(0, len(images), batch):
+            part_images = images[start:start + batch]
+            tasks = [(str(DATASET / "images" / split / name), [(rows[i]["x0"], rows[i]["y0"], rows[i]["x1"] - rows[i]["x0"],
+                                                               rows[i]["y1"] - rows[i]["y0"]) for i in idx])
+                     for (split, name), idx in part_images]
+            for (_, idx), got in zip(part_images, ex.map(_cut, tasks, chunksize=8)):
+                for i, c in zip(idx, got):
+                    crops[first + i] = c
     crops.flush()
     del crops
     part.rename(path)
