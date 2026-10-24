@@ -9,13 +9,15 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from bench.skus import HILO, KIND_TO_SKU
+from bench.calibrate import DATASET, cut_rows, long_data
+from bench.skus import HILO, HOLDOUT, KIND_TO_SKU
 from bench.testset import crop_unit
 
 HERE = Path(__file__).resolve().parents[1]          # arch_bench/
 DATAGENT = HERE.parent
 LABELS = HERE / "labels"
 PHOTOS = HERE / "data" / "iphone"
+CACHE = HERE / "data" / "cache"
 
 
 @dataclass
@@ -102,6 +104,38 @@ def hilo_queries() -> Gallery:
     """The six photos of HILO's second carton (IMG_0703-0708), asked against a gallery that holds the first."""
     rows, boxes = _photos("query")
     return _photo_gallery("hilo_queries", rows, boxes)
+
+
+def db_gallery(holdout: tuple[str, ...], crops: int = 60000, background: int = 15000, others: int = 20000,
+               references: int = 160) -> Gallery:
+    """The gallery of build_db.py --types: the reference renders, `crops` dataset cartons (the same number of every
+    type, seed 101), `background` empty boxes (seed 103) and `others` cartons of other brands (seed 105), the last two
+    stored as "none". With holdout=HOLDOUT the dataset crops of those SKUs are left out, so they keep only their
+    renders. Built once into data/cache with the held-out SKUs' dataset crops last, so that db_holdout is a slice of
+    the same memmap rather than a second 36 GB file."""
+    if holdout not in ((), HOLDOUT):
+        raise ValueError("db_gallery knows holdout=() and holdout=HOLDOUT only")
+    path = CACHE / f"gallery_db_{crops}_{background}_{others}_{references}.npy"
+    if not path.exists():
+        data = long_data()
+        rows = data.load_objects(DATASET)
+        cartons = data.sample_objects(rows, "train", crops, seed=101, per_kind=True)
+        picked = ([r for r in cartons if KIND_TO_SKU[r["kind"]] not in HOLDOUT]
+                  + data.background_boxes(rows, "train", background, seed=103) + data.other_cartons(DATASET, "train", others, seed=105)
+                  + [r for r in cartons if KIND_TO_SKU[r["kind"]] in HOLDOUT])
+        refs = render_gallery(per_kind=references)
+        cut_rows(picked, path, head=refs.crops)
+        np.savez(path.with_suffix(".meta.npz"), name="db",
+                 sku=np.concatenate([refs.sku, [KIND_TO_SKU[r["kind"]] if r["brand"] != "none" else "none" for r in picked]]),
+                 source=np.concatenate([refs.source, ["dataset" if r["brand"] != "none" else r["kind"] for r in picked]]))
+    g = load_gallery(path)
+    if not holdout:
+        return g
+    held = (g.source == "dataset") & np.isin(g.sku, HOLDOUT)
+    keep = len(held) - int(held.sum())
+    if held[:keep].any():
+        raise ValueError(f"{path}: the held-out SKUs' dataset crops are not at the end")
+    return Gallery("db_holdout", g.crops[:keep], g.sku[:keep], g.source[:keep])
 
 
 def save_gallery(g: Gallery, path: Path) -> None:

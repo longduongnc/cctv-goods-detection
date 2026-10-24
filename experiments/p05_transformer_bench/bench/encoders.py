@@ -123,7 +123,34 @@ class HFImage(_Square):
         return f if isinstance(f, torch.Tensor) else f.pooler_output
 
 
+class FineTuned(_Square):
+    """A checkpoint of bench/finetune.py (name "ft:<path>"), fed at its training size with its backbone's statistics."""
+
+    def __init__(self, name, path, device):
+        super().__init__(name, device)
+        from bench.finetune import FtNet
+        state = torch.load(path, map_location="cpu")
+        self.model = FtNet(state["backbone"], pretrained=False)
+        self.model.load_state_dict(state["weights"])
+        self.model.to(device).eval()
+        self.size = state["size"]
+        self.mean, self.std = np.array(state["mean"], np.float32), np.array(state["std"], np.float32)
+
+    def _features(self, crops):
+        return self.model(self._input(crops))
+
+
+def licence_id(name: str) -> str:
+    """The model card an encoder's licence is read from; a fine-tuned checkpoint carries its backbone's."""
+    if name.startswith("ft:"):
+        state = torch.load(name[3:], map_location="cpu")
+        return state["backbone"] if state["backbone_kind"] == "hf" else f"timm/{state['backbone']}"
+    return HF_ID[name]
+
+
 def make_encoder(name: str, device: str) -> Encoder:
+    if name.startswith("ft:"):
+        return FineTuned(name, name[3:], device)
     if name in TIMM:
         return TimmDino(name, TIMM[name], device)
     if name in HF:

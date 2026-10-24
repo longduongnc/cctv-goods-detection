@@ -38,6 +38,31 @@ def _cut(task):
     return [crop_unit(img, b) for b in boxes]
 
 
+def cut_rows(rows: list[dict], path: Path, head: np.ndarray | None = None, workers: int = 12) -> np.ndarray:
+    """Cut every row's dataset box (x0, y0, x1, y1) with crop_unit into a .npy at `path`, after the crops in `head`;
+    returns it as a memmap. Written as a .part file first, so a stopped run never leaves a half-filled cache."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    first = 0 if head is None else len(head)
+    part = path.with_name(path.stem + ".part.npy")
+    crops = np.lib.format.open_memmap(part, mode="w+", dtype=np.uint8, shape=(first + len(rows), 384, 384, 3))
+    if head is not None:
+        crops[:first] = head
+    by_image = {}
+    for i, r in enumerate(rows):
+        by_image.setdefault((r["split"], r["image"]), []).append(i)
+    tasks = [(str(DATASET / "images" / split / name), [(rows[i]["x0"], rows[i]["y0"], rows[i]["x1"] - rows[i]["x0"],
+                                                       rows[i]["y1"] - rows[i]["y0"]) for i in idx])
+             for (split, name), idx in by_image.items()]
+    with ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn")) as ex:    # no fork of a threaded process
+        for idx, got in zip(by_image.values(), ex.map(_cut, tasks, chunksize=8)):
+            for i, c in zip(idx, got):
+                crops[first + i] = c
+    crops.flush()
+    del crops
+    part.rename(path)
+    return np.load(path, mmap_mode="r")
+
+
 def synthetic_val(per_kind: int = 2000, seed: int = 11) -> tuple[np.ndarray, np.ndarray]:
     """(crops, sku): per_kind cartons of every type from the val split of dataset_hard_types, picked as
     `evaluate.py --types` picks them (sample_objects, seed 11, per_kind), cut with crop_unit. The crops are kept in
@@ -46,24 +71,7 @@ def synthetic_val(per_kind: int = 2000, seed: int = 11) -> tuple[np.ndarray, np.
     rows = data.sample_objects(data.load_objects(DATASET), "val", per_kind * len(KIND_TO_SKU), seed=seed, per_kind=True)
     sku = np.array([KIND_TO_SKU[r["kind"]] for r in rows])
     path = CACHE / f"synthetic_val_{per_kind}_{seed}.npy"
-    if not path.exists():
-        CACHE.mkdir(parents=True, exist_ok=True)
-        part = path.with_name(path.stem + ".part.npy")
-        crops = np.lib.format.open_memmap(part, mode="w+", dtype=np.uint8, shape=(len(rows), 384, 384, 3))
-        by_image = {}
-        for i, r in enumerate(rows):
-            by_image.setdefault(r["image"], []).append(i)
-        tasks = [(str(DATASET / "images" / "val" / name), [(rows[i]["x0"], rows[i]["y0"], rows[i]["x1"] - rows[i]["x0"],
-                                                           rows[i]["y1"] - rows[i]["y0"]) for i in idx])
-                 for name, idx in by_image.items()]
-        with ProcessPoolExecutor(12, mp_context=multiprocessing.get_context("spawn")) as ex:    # no fork of a threaded process
-            for idx, got in zip(by_image.values(), ex.map(_cut, tasks, chunksize=8)):
-                for i, c in zip(idx, got):
-                    crops[i] = c
-        crops.flush()
-        del crops
-        part.rename(path)
-    return np.load(path, mmap_mode="r"), sku
+    return (np.load(path, mmap_mode="r") if path.exists() else cut_rows(rows, path)), sku
 
 
 def synthetic_threshold(top1_pos: np.ndarray, keep: float = 0.99) -> float:
