@@ -5,3 +5,6 @@ dinov2_s,vit_small_patch14_reg4_dinov2.lvd142m,no,10,9,27.4,db_holdout,0.9024,0.
 dinov2_s_holdout,vit_small_patch14_reg4_dinov2.lvd142m,yes,10,10,27.2,renders,0.7927,0.7377,0.8387,9,39,0.2308,0.1265,0.3834,3590,6000,0.5983,0.5859,0.6107
 dinov2_s_holdout,vit_small_patch14_reg4_dinov2.lvd142m,yes,10,10,27.2,db,0.8049,0.7508,0.8496,12,39,0.3077,0.1857,0.4642,4936,6000,0.8227,0.8128,0.8321
 dinov2_s_holdout,vit_small_patch14_reg4_dinov2.lvd142m,yes,10,10,27.2,db_holdout,0.7764,0.7203,0.824,0,39,0.0,0.0,0.0897,916,6000,0.1527,0.1438,0.162
+siglip2_b,google/siglip2-base-patch16-224,no,10,9,48.9,renders,0.935,0.897,0.9596,38,39,0.9744,0.8682,0.9955,5862,6000,0.977,0.9729,0.9805
+siglip2_b,google/siglip2-base-patch16-224,no,10,9,48.9,db,0.9228,0.8825,0.95,38,39,0.9744,0.8682,0.9955,5865,6000,0.9775,0.9734,0.981
+siglip2_b,google/siglip2-base-patch16-224,no,10,9,48.9,db_holdout,0.9106,0.8683,0.9402,34,39,0.8718,0.7329,0.944,5643,6000,0.9405,0.9342,0.9462
