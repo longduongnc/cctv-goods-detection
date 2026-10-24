@@ -9,13 +9,18 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")/.." && pwd)"
 remote='~/Desktop/Datagent/arch_bench'
 # a stalled connection (the machine is often under heavy load) fails after a minute instead of hanging
-remote_sh() { ssh -o BatchMode=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=4 "$LONG_HOST" "$@"; }
+opts=(-o BatchMode=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=4)
+remote_sh() { ssh "${opts[@]}" "$LONG_HOST" "$@"; }
 
 case "${1:-}" in
   push)
+    # through a file and scp: piping tar into the Windows ssh client now and then never reached end of input
+    tarball="$(mktemp)"
+    trap 'rm -f "$tarball"' EXIT
+    tar -C "$here" --exclude=./results --exclude=./data --exclude=./.venv --exclude=__pycache__ --exclude=.pytest_cache -cf "$tarball" .
     remote_sh "mkdir -p $remote"
-    tar -C "$here" --exclude=./results --exclude=./data --exclude=./.venv --exclude=__pycache__ --exclude=.pytest_cache -cf - . \
-      | remote_sh "tar -xf - -C $remote"
+    scp -q "${opts[@]}" "$tarball" "$LONG_HOST:Desktop/Datagent/arch_bench/.push.tar"
+    remote_sh "tar -xf $remote/.push.tar -C $remote && rm $remote/.push.tar"
     ;;
   pull)
     mkdir -p "$here/results"
