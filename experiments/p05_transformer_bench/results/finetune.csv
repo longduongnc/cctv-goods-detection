@@ -1,0 +1,7 @@
+run,backbone,holdout,epochs,best_epoch,train_minutes,gallery,acc,acc_lo,acc_hi,holdout_real_k,holdout_real_n,holdout_real,holdout_real_lo,holdout_real_hi,holdout_synth_k,holdout_synth_n,holdout_synth,holdout_synth_lo,holdout_synth_hi
+dinov2_s,vit_small_patch14_reg4_dinov2.lvd142m,no,10,9,27.4,renders,0.9268,0.8873,0.9532,38,39,0.9744,0.8682,0.9955,5846,6000,0.9743,0.97,0.978
+dinov2_s,vit_small_patch14_reg4_dinov2.lvd142m,no,10,9,27.4,db,0.9228,0.8825,0.95,38,39,0.9744,0.8682,0.9955,5849,6000,0.9748,0.9706,0.9785
+dinov2_s,vit_small_patch14_reg4_dinov2.lvd142m,no,10,9,27.4,db_holdout,0.9024,0.8589,0.9336,31,39,0.7949,0.6447,0.8922,5707,6000,0.9512,0.9454,0.9563
+dinov2_s_holdout,vit_small_patch14_reg4_dinov2.lvd142m,yes,10,10,27.2,renders,0.7927,0.7377,0.8387,9,39,0.2308,0.1265,0.3834,3590,6000,0.5983,0.5859,0.6107
+dinov2_s_holdout,vit_small_patch14_reg4_dinov2.lvd142m,yes,10,10,27.2,db,0.8049,0.7508,0.8496,12,39,0.3077,0.1857,0.4642,4936,6000,0.8227,0.8128,0.8321
+dinov2_s_holdout,vit_small_patch14_reg4_dinov2.lvd142m,yes,10,10,27.2,db_holdout,0.7764,0.7203,0.824,0,39,0.0,0.0,0.0897,916,6000,0.1527,0.1438,0.162

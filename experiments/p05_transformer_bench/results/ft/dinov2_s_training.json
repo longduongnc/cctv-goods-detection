@@ -1,0 +1,82 @@
+{
+ "backbone": "vit_small_patch14_reg4_dinov2.lvd142m",
+ "holdout": [],
+ "epochs": 10,
+ "batch": 192,
+ "train_crops": 239920,
+ "val_crops": 15600,
+ "train_minutes": 27.4,
+ "best_val_accuracy_types": 0.9875,
+ "history": [
+  {
+   "epoch": 1,
+   "minutes": 2.9,
+   "loss": 1.7634,
+   "val_accuracy_types": 0.9688,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 2,
+   "minutes": 5.6,
+   "loss": 0.7057,
+   "val_accuracy_types": 0.9772,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 3,
+   "minutes": 8.2,
+   "loss": 0.5408,
+   "val_accuracy_types": 0.9757,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 4,
+   "minutes": 10.9,
+   "loss": 0.4342,
+   "val_accuracy_types": 0.98,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 5,
+   "minutes": 13.9,
+   "loss": 0.3471,
+   "val_accuracy_types": 0.9824,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 6,
+   "minutes": 16.7,
+   "loss": 0.2688,
+   "val_accuracy_types": 0.9849,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 7,
+   "minutes": 19.3,
+   "loss": 0.204,
+   "val_accuracy_types": 0.9856,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 8,
+   "minutes": 22.0,
+   "loss": 0.1576,
+   "val_accuracy_types": 0.9863,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 9,
+   "minutes": 24.7,
+   "loss": 0.1228,
+   "val_accuracy_types": 0.9875,
+   "micro_batch": 192
+  },
+  {
+   "epoch": 10,
+   "minutes": 27.4,
+   "loss": 0.1012,
+   "val_accuracy_types": 0.9871,
+   "micro_batch": 192
+  }
+ ]
+}
