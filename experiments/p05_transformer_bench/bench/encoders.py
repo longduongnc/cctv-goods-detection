@@ -105,18 +105,21 @@ class Carton(_Square):
         return self.model(self._input(crops))
 
 
-class HFImage(_Encoder):
-    """A Hugging Face image-text model; its own processor resizes and normalises, get_image_features pools."""
+class HFImage(_Square):
+    """A Hugging Face image-text model at the input size and statistics of its own processor, resized with cv2 like
+    the timm models (the processor itself took 30-60 ms a crop on the CPU, which the timing would have charged to
+    the model); get_image_features pools."""
 
     def __init__(self, name, hf_id, device):
         super().__init__(name, device)
         from transformers import AutoImageProcessor, AutoModel
-        self.processor = AutoImageProcessor.from_pretrained(hf_id)
+        p = AutoImageProcessor.from_pretrained(hf_id)
+        self.size = (getattr(p, "crop_size", None) or p.size).height          # CLIP crops to 224, SigLIP resizes
+        self.mean, self.std = np.array(p.image_mean, np.float32), np.array(p.image_std, np.float32)
         self.model = AutoModel.from_pretrained(hf_id).to(device).eval()
 
     def _features(self, crops):
-        pixels = self.processor(images=list(crops), return_tensors="pt")["pixel_values"].to(self.device)
-        f = self.model.get_image_features(pixel_values=pixels)
+        f = self.model.get_image_features(pixel_values=self._input(crops))
         return f if isinstance(f, torch.Tensor) else f.pooler_output
 
 

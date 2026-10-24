@@ -1,0 +1,8 @@
+{
+ "google/siglip2-base-patch16-224": "apache-2.0",
+ "google/siglip2-so400m-patch14-384": "apache-2.0",
+ "openai/clip-vit-large-patch14": "unknown",
+ "timm/vit_base_patch14_reg4_dinov2.lvd142m": "apache-2.0",
+ "timm/vit_large_patch14_reg4_dinov2.lvd142m": "apache-2.0",
+ "timm/vit_small_patch14_reg4_dinov2.lvd142m": "apache-2.0"
+}

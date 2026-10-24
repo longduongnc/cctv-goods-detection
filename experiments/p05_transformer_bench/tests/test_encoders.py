@@ -7,7 +7,7 @@ import pytest
 import torch
 
 from bench import licenses
-from bench.encoders import NAMES, make_encoder
+from bench.encoders import HF, NAMES, make_encoder
 from bench.testset import crop_unit, load_units, read_frame
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -42,6 +42,26 @@ def test_long_ft_on_rgb_crops_equals_long_embedder_on_bgr_crops():
     theirs = long_embedder.Embedder(device=DEVICE, types=True).embed(bgr)
     ours = make_encoder("long_ft", DEVICE).embed(rgb)
     assert np.abs(ours - theirs).max() < 1e-3
+
+
+@pytest.mark.gpu
+@pytest.mark.parametrize("name", ["siglip2_b", "siglip2_so400m", "clip_l"])
+def test_hf_input_gives_the_features_of_its_own_processor(name):
+    """HF encoders resize with cv2 like the timm ones (the processor took 30-60 ms a crop on the CPU); the
+    features must stay those of the model's own processor."""
+    from transformers import AutoImageProcessor
+    units = load_units([HERE / "labels" / "th_labels_2026-10-24.csv"])[:16]
+    sample = DATAGENT / "cv_output_sample"
+    crops = np.stack([crop_unit(read_frame(sample, u.image), u.box) for u in units])
+    enc = make_encoder(name, DEVICE)
+    pixels = AutoImageProcessor.from_pretrained(HF[name])(images=list(crops), return_tensors="pt")["pixel_values"]
+
+    def features(x):
+        with torch.no_grad():
+            f = enc.model.get_image_features(pixel_values=x.to(DEVICE))
+        f = f if isinstance(f, torch.Tensor) else f.pooler_output
+        return torch.nn.functional.normalize(f.float(), dim=-1).cpu().numpy()
+    assert (features(enc._input(crops)) * features(pixels)).sum(1).min() > 0.99
 
 
 def test_license_is_read_from_the_card_and_kept(tmp_path, monkeypatch):
