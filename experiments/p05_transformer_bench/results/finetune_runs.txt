@@ -7,3 +7,6 @@
 2026-10-24 19:21 +0700 start siglip2_b_holdout
 2026-10-24 20:05 +0700 end siglip2_b_holdout (exit 0; chain driver stopped at 19:56 so the scoring runs alone, started again after it)
 2026-10-24 20:14 +0700 start siglip2_so400m
+2026-10-25 00:12 +0700 end siglip2_so400m (exit 0)
+2026-10-25 00:12 +0700 start siglip2_so400m_holdout
+2026-10-25 03:11 +0700 end siglip2_so400m_holdout (exit 0)

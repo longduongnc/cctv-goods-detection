@@ -1,0 +1,87 @@
+{
+ "backbone": "google/siglip2-so400m-patch14-384",
+ "holdout": [
+  "TMP-MLK-TH-02",
+  "TMP-MLK-VNM-09",
+  "TMP-MLK-VNM-05"
+ ],
+ "epochs": 10,
+ "batch": 192,
+ "train_crops": 197440,
+ "val_crops": 13200,
+ "train_minutes": 176.4,
+ "best_epoch": 10,
+ "best_val_accuracy_types": 0.9860606060606061,
+ "history": [
+  {
+   "epoch": 1,
+   "minutes": 18.5,
+   "loss": 1.3164,
+   "val_accuracy_types": 0.9541,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 2,
+   "minutes": 36.4,
+   "loss": 0.5435,
+   "val_accuracy_types": 0.9638,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 3,
+   "minutes": 54.0,
+   "loss": 0.3888,
+   "val_accuracy_types": 0.9767,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 4,
+   "minutes": 71.5,
+   "loss": 0.3046,
+   "val_accuracy_types": 0.9787,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 5,
+   "minutes": 88.9,
+   "loss": 0.2375,
+   "val_accuracy_types": 0.9802,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 6,
+   "minutes": 106.3,
+   "loss": 0.1669,
+   "val_accuracy_types": 0.9828,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 7,
+   "minutes": 123.7,
+   "loss": 0.118,
+   "val_accuracy_types": 0.9783,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 8,
+   "minutes": 141.0,
+   "loss": 0.0768,
+   "val_accuracy_types": 0.983,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 9,
+   "minutes": 159.0,
+   "loss": 0.0555,
+   "val_accuracy_types": 0.9843,
+   "micro_batch": 48
+  },
+  {
+   "epoch": 10,
+   "minutes": 176.4,
+   "loss": 0.0421,
+   "val_accuracy_types": 0.9861,
+   "micro_batch": 48
+  }
+ ]
+}
