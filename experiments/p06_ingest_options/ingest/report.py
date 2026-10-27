@@ -189,7 +189,8 @@ def render_summary(results: Path) -> str:
         out.append(f"| {name}, {num(float(r['megapixels']))} MP | {r['n_images']}{skipped} | {num(float(r['mb_median']), 2)} "
                    f"| {num(float(r['mb_p90']), 2)} |")
     out += ["", "| Phương án | Camera | GB/ngày/tiệm (thấp–cao) | G1 (≤ 2 GB/ngày) | Căn cứ |", "|---|---|---|---|---|"]
-    basis = {"measured": "đo", "vendor": "bitrate nhà sản xuất *(chưa kiểm chứng)*", "p03": "giả định 10 MB của P03"}
+    basis = {"measured": "đo", "vendor": "bitrate tham khảo từ diễn đàn và trang hướng dẫn *(chưa kiểm chứng)*",
+             "p03": "giả định 10 MB của P03"}
     for r in _read(results / "bandwidth.csv"):
         low, high = float(r["gb_day_low"]), float(r["gb_day_high"])
         digits = 1 if low >= 1 else 3
@@ -245,8 +246,8 @@ def render_summary(results: Path) -> str:
             f"- Chiều cao hộp {num(float(carton), 1)} cm chưa đo. Camera 4K ống 2,8 mm ({num(float(wide['carton_px']))} px ở 2 m) "
             f"vẫn qua G3 nếu hộp cao từ {num(min_carton_cm(float(wide['px_per_cm'])), 2)} cm trở lên.",
             "- Thời gian trên hộp và trên cloud là quy đổi theo điểm Geekbench 6 đơn luồng, chưa đo trên thiết bị thật.",
-            "- Bitrate video của B lấy từ nguồn cộng đồng và đại lý (5–8 Mbps cho 8 MP H.265); B trượt G1 ở mọi bitrate trên "
-            "0,32 Mbps, nên kết luận về B không phụ thuộc con số này.",
+            "- Bitrate video của B lấy từ diễn đàn người dùng và trang hướng dẫn, không phải từ hãng; B trượt G1 ở mọi "
+            "bitrate trên 0,32 Mbps, nên kết luận về B không phụ thuộc con số này.",
             "- Clip điện thoại quay cầm tay; clip MERL trong repo là bản đã vẽ khung chú thích, độ phân giải 640×472. "
             "Chỉ báo E4 chỉ mang tính tham khảo.",
             "- Giá OAK 4 S theo P03 ($949): trang Luxonis không hiện giá ngày 27/10. Giá mini PC N100 lấy từ Newegg cộng VAT "

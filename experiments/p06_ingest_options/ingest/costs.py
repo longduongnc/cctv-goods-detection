@@ -23,6 +23,7 @@ DAYS = 30
 MONTHS_12W = 84 / 30
 COLD_START_H_MONTH = 10 / 60 * DAYS       # P03: 10 billed minutes each time the endpoint starts, once a night
 KVS_RETENTION_DAYS = 7                    # P02
+KVS_LOWRES_MAX_PX = 1920                  # KVS GetImages bills a frame 1080p or smaller at the low-res price
 SM_LINE = "SageMaker Async ml.g6.xlarge"   # P03's processing line, replaced for CPU processing and for option D
 BOXES = ("box_rpi5", "box_n100", "box_orin")
 CAMERAS_AB = ("cam_2mp", "cam_4k_28", "cam_4k_40")
@@ -69,9 +70,10 @@ def p03_breakdown(p03, cams_per_store: int, overrides: dict) -> dict[str, dict[s
 
 
 def cloud_monthly_usd(option: str, cams_per_store: int, processing: str, p03, sources, image_mb: float,
-                      video_gb_day: float, timing: dict) -> float:
+                      video_gb_day: float, timing: dict, camera: str) -> float:
     """AWS bill a month. A and C upload 56 pictures a day per camera, D the 14 it counted; B streams video into
-    Kinesis Video Streams and takes 60 frames around each mark out of it. A and B filter frames in the cloud."""
+    Kinesis Video Streams and takes 60 frames around each mark out of it, priced by the camera's resolution.
+    A and B filter frames in the cloud."""
     overrides = dict(still_mb=image_mb, people_drop=0.0)
     if option == "D":
         overrides["capture_every_min"] = 60
@@ -88,8 +90,9 @@ def cloud_monthly_usd(option: str, cams_per_store: int, processing: str, p03, so
         bill["1 Thu nhận"]["KVS ghi video"] = cams * video_gb_day * DAYS * value(sources, "aws.kvs_in_gb")
         bill["1 Thu nhận"]["KVS lưu video 7 ngày"] = (cams * video_gb_day * KVS_RETENTION_DAYS
                                                      * value(sources, "aws.kvs_store_gbmo"))
+        lowres = value(sources, f"{camera}.h_pixels") <= KVS_LOWRES_MAX_PX
         bill["2 Xử lý"]["KVS lấy khung"] = (cams * MARKS_PER_DAY * FRAMES_PER_MARK * DAYS
-                                            * value(sources, "aws.kvs_getimages_img"))
+                                            * value(sources, "aws.kvs_getimages_img" + ("_lowres" if lowres else "")))
     return p03.total(bill)
 
 
@@ -156,7 +159,7 @@ def table(sources, results: Path, repo_root: Path) -> list[dict]:
     for c in combos():
         bw = bandwidth[(c.option, c.camera)]
         cloud = cloud_monthly_usd(c.option, c.cams_per_store, c.processing, p03, sources,
-                                  float(bw["image_mb_high"]), float(bw["gb_day_high"]), timing)
+                                  float(bw["image_mb_high"]), float(bw["gb_day_high"]), timing, camera=c.camera)
         once, month = one_time_usd(c, sources), monthly_usd(c, sources, cloud)
         t12w, t12m = totals(once, month)
         rows.append(dict(asdict(c), box=c.box or "", cloud_usd=round(cloud, 2), one_time_usd=round(once, 2),

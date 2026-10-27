@@ -94,3 +94,7 @@ def test_hevc_cell_carries_the_unverified_mark():
 def test_summary_marks_camera_buffering_unverified():
     outage = section(render_summary(RESULTS), "6. Rớt mạng")
     assert "chưa kiểm chứng" in outage
+
+
+def test_summary_does_not_call_forum_bitrates_the_makers():
+    assert "nhà sản xuất" not in render_summary(RESULTS)

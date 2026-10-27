@@ -19,8 +19,8 @@ REQUIRED_KEYS = (
     "oak4s.h_pixels", "oak4s.hfov_deg", "oak4s.price_usd", "oak4s.power_w", "oak4s.storage_gb",
     *(f"{box}.{field}" for box in ("box_rpi5", "box_n100", "box_orin") for field in _BOX),
     "cpu_long.cpu_st", "cpu_cloud.cpu_st",
-    "aws.sm_async_cpu_h", "aws.kvs_in_gb", "aws.kvs_store_gbmo", "aws.kvs_getimages_img",
-    "vendor.h265_8mp_mbps_low", "vendor.h265_8mp_mbps_high",
+    "aws.sm_async_cpu_h", "aws.kvs_in_gb", "aws.kvs_store_gbmo", "aws.kvs_getimages_img", "aws.kvs_getimages_img_lowres",
+    "vendor.h265_2mp_mbps_low", "vendor.h265_2mp_mbps_high", "vendor.h265_8mp_mbps_low", "vendor.h265_8mp_mbps_high",
 )
 
 

@@ -17,6 +17,7 @@ MARKS_PER_DAY = 56            # 14 hours × 4 marks
 D_IMAGES_PER_DAY = 14         # one counted picture an hour, as in P03
 ROWS_PER_IMAGE, ROW_KB = 30, 0.5          # CV Output rows per picture and their size, as in P03
 P03_STILL_MB = 10.0           # P03's assumption for one 48 MP OAK 4 S picture (not measured)
+BITRATE_KEY = {"cam_2mp": "vendor.h265_2mp_mbps"}         # B: the 2 MP camera streams 1080p; every other camera 8 MP
 OPTION_CAMERAS = {
     "A": ("cam_2mp", "cam_4k_28", "cam_4k_40"),
     "B": ("cam_2mp", "cam_4k_28", "cam_4k_40"),
@@ -62,10 +63,11 @@ def image_mb_by_camera(jpeg_rows: list[dict]) -> dict[str, tuple[float, float]]:
 
 def table(sources, jpeg_rows: list[dict]) -> list[dict]:
     mb = image_mb_by_camera(jpeg_rows)
-    mbps = (value(sources, "vendor.h265_8mp_mbps_low"), value(sources, "vendor.h265_8mp_mbps_high"))
     rows = []
     for option, cameras in OPTION_CAMERAS.items():
         for cam in cameras:
+            key = BITRATE_KEY.get(cam, "vendor.h265_8mp_mbps")
+            mbps = (value(sources, f"{key}_low"), value(sources, f"{key}_high"))
             low, high = (option_gb_per_day(option, image_mb=m, video_mbps=v) for m, v in zip(mb[cam], mbps))
             basis = "vendor" if option == "B" else ("p03" if cam == "oak4s" else "measured")
             rows.append(dict(option=option, camera=cam, image_mb_low=mb[cam][0], image_mb_high=mb[cam][1],

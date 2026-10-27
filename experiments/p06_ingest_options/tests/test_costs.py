@@ -25,7 +25,9 @@ def p03():
 @pytest.fixture
 def aws(tmp_path):
     return sources_from(tmp_path, [("aws.sm_async_cpu_h", 0.2), ("aws.kvs_in_gb", 0.010965),
-                                   ("aws.kvs_store_gbmo", 0.025), ("aws.kvs_getimages_img", 0.00001)])
+                                   ("aws.kvs_store_gbmo", 0.025), ("aws.kvs_getimages_img", 0.000018),
+                                   ("aws.kvs_getimages_img_lowres", 0.00001),
+                                   ("cam_2mp.h_pixels", 1920), ("cam_4k_28.h_pixels", 3840)])
 
 
 @pytest.fixture
@@ -61,8 +63,15 @@ def test_p03_baseline_is_reproduced(p03):
 
 def test_cloud_order_by_option(p03, aws):
     t = {"filter_ms_cloud": 200.0, "count_ms_cloud": 1000.0}
-    cost = lambda o, video: cloud_monthly_usd(o, 1, "cpu", p03, aws, image_mb=1.5, video_gb_day=video, timing=t)
+    cost = lambda o, video: cloud_monthly_usd(o, 1, "cpu", p03, aws, image_mb=1.5, video_gb_day=video, timing=t,
+                                              camera="cam_4k_28")
     assert cost("D", 0.0) < cost("C", 0.0) < cost("B", 12.6)
+
+
+def test_b_takes_frames_at_the_price_for_the_cameras_resolution(p03, aws):
+    t = {"filter_ms_cloud": 200.0, "count_ms_cloud": 1000.0}
+    cost = lambda cam: cloud_monthly_usd("B", 1, "cpu", p03, aws, image_mb=1.5, video_gb_day=12.6, timing=t, camera=cam)
+    assert cost("cam_4k_28") - cost("cam_2mp") == pytest.approx(30 * 56 * 60 * 30 * (0.000018 - 0.00001))   # trên / tới 1080p
 
 
 def test_one_time_counts_cameras_per_store_and_one_box_per_store(shop):

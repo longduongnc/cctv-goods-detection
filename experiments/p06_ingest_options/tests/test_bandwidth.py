@@ -1,6 +1,8 @@
 import pytest
 
-from ingest.bandwidth import image_mb_by_camera, images_gb_per_day, option_gb_per_day, passes_g1, video_gb_per_day
+from ingest.bandwidth import (image_mb_by_camera, images_gb_per_day, option_gb_per_day, passes_g1, table,
+                              video_gb_per_day)
+from ingest.sources import load_sources
 
 
 def test_units():
@@ -30,3 +32,17 @@ def test_image_mb_by_camera():
     assert mb["cam_2mp"] == (0.5, 0.7)
     assert mb["cam_4k_28"] == mb["cam_4k_40"] == (1.8, 2.6)
     assert mb["oak4s"] == (10.0, 10.0)                                  # giả định 10 MB của P03
+
+
+def test_b_streams_at_the_bitrate_of_the_cameras_resolution(tmp_path):
+    p = tmp_path / "s.csv"
+    p.write_text("key,value,unit,source,checked_on,note\n"
+                 + "".join(f"vendor.h265_{mp}_mbps_{end},{v},Mbps,t,2026-10-27,\n"
+                           for mp, end, v in (("2mp", "low", 1), ("2mp", "high", 2), ("8mp", "low", 5), ("8mp", "high", 8))),
+                 encoding="utf-8")
+    jpeg = [dict(label="frames39", megapixels="2.0", mb_median="0.3", mb_p90="0.4"),
+            dict(label="iphone", megapixels="8.0", mb_median="1.2", mb_p90="1.5")]
+    b = {r["camera"]: r for r in table(load_sources(p), jpeg) if r["option"] == "B"}
+    assert b["cam_2mp"]["gb_day_low"] == pytest.approx(video_gb_per_day(1.0), abs=1e-4)
+    assert b["cam_2mp"]["gb_day_high"] == pytest.approx(video_gb_per_day(2.0), abs=1e-4)
+    assert b["cam_4k_28"]["gb_day_high"] == pytest.approx(video_gb_per_day(8.0), abs=1e-4)

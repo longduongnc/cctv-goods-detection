@@ -46,5 +46,8 @@ aws.sm_async_cpu_h,0.257,USD/giờ,https://pricing.us-east-1.amazonaws.com/offer
 aws.kvs_in_gb,0.010965,USD/GB,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,APN1-BytesIn; publicationDate 2026-09-30
 aws.kvs_store_gbmo,0.025,USD/GB-tháng,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,APN1-BytesHr
 aws.kvs_getimages_img,1.8e-05,USD/ảnh,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,"APN1-HighRes-ImagesCount (ảnh trên 1080p); ảnh 1080p trở xuống là 0,00001"
+aws.kvs_getimages_img_lowres,1e-05,USD/ảnh,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,APN1-LowRes-ImagesCount (ảnh 1080p trở xuống); publicationDate 2026-09-30
+vendor.h265_2mp_mbps_low,2,Mbps,https://securitycamcenter.com/hikvision-recommended-video-settings/,2026-10-27,"Bảng khuyến nghị 2048 Kbps cho 2MP (1920×1080), cùng bảng với dòng 8 MP (trang hướng dẫn, không phải của Hikvision); chỉ tìm được một nguồn nên mức thấp bằng mức cao"
+vendor.h265_2mp_mbps_high,2,Mbps,https://securitycamcenter.com/hikvision-recommended-video-settings/,2026-10-27,Như mức thấp
 vendor.h265_8mp_mbps_low,5,Mbps,https://www.ipcamtalk.com/goto/post?id=292334,2026-10-27,"Người dùng IPCamTalk: Hikvision 4K H.265, 20 fps, max bitrate 5000 Kbps (nguồn cộng đồng)"
 vendor.h265_8mp_mbps_high,8,Mbps,https://securitycamcenter.com/hikvision-recommended-video-settings/,2026-10-27,"Bảng khuyến nghị 8192 Kbps cho 4K/8MP (trang hướng dẫn, không phải của Hikvision); đại lý HiLook UK ghi 8–12 Mbps; công cụ tính của Hikvision chưa mở được"
