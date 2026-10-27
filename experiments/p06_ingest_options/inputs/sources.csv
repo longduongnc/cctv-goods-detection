@@ -1,1 +1,50 @@
 key,value,unit,source,checked_on,note
+fx.vnd_per_usd,26040,VND/USD,https://webgia.com/ty-gia/vietcombank/,2026-10-27,Tỷ giá bán USD của Vietcombank lúc 13:00:08 27/10/2026; webgia.com chép bảng của Vietcombank
+power.vnd_per_kwh,3152,VND/kWh,https://tuoitre.vn/thay-doi-khung-gio-tinh-gia-dien-vao-buoi-toi-nguoi-dung-dien-nao-chiu-tac-dong-20260428154621981.htm,2026-10-27,"Kinh doanh, cấp điện áp dưới 6 kV, giờ bình thường (Tuổi Trẻ 28/04/2026, biểu giá QĐ 1279/QĐ-BCT); chưa đối chiếu văn bản gốc. Thấp điểm 1.918, cao điểm 5.422"
+plan4g_sd100.price_vnd_month,100000,VND/tháng,https://www.vietteldata.vn/goi-data/4g,2026-10-27,Gói SD100: 100.000 đ/30 ngày (trang đại lý Viettel)
+plan4g_sd100.gb_per_day,2,GB/ngày,https://www.vietteldata.vn/goi-data/4g,2026-10-27,"2 GB/ngày, tối đa 60 GB/30 ngày"
+plan4g_report.price_vnd_month,200000,VND/tháng,"Báo cáo CV Output v1.0 ngày 17/10/2026 (Bao_cao_CV_Output_CV_Output_Report_VI-EN.pdf), trang 14, câu Q2",2026-10-27,"Ước tính cước 4G mỗi tháng cho tiệm không có WiFi, ghi trong báo cáo gửi Datagent"
+router4g.price_vnd,990000,VND,https://philong.com.vn/router-wifi-4g-tp-link-tl-mr100.html,2026-09-24,"TP-Link TL-MR100; P03 ghi 830.000–990.000, lấy mức cao. meta.vn ngày 27/10: 950.000 (giảm từ 1.100.000) https://meta.vn/router-wifi-4g-tp-link-tl-mr100-p83752"
+microsd128.price_vnd,600000,VND,https://tuanphong.vn/the-nho-microsd/the-nho-128gb-microsdxc-sandisk-high-endurance,2026-10-27,SanDisk High Endurance 128GB (giảm từ 1.299.000). Hoàng Hà Mobile 6/2026 ước 380–450 nghìn; Kingston High Endurance 128GB 2.190.000 (usbbaomat.vn)
+cam_2mp.h_pixels,1920,px,https://assets.hikvision.com/prd/public/all/doc/m000007714/DS-2CD1023G0E-I-C_Datasheet_20250617.pdf,2026-09-24,"Hikvision DS-2CD1023G0E-I, 1920×1080 (datasheet dẫn ở P03)"
+cam_2mp.hfov_deg,112.1,độ,https://assets.hikvision.com/prd/public/all/doc/m000007714/DS-2CD1023G0E-I-C_Datasheet_20250617.pdf,2026-09-24,"Ống 2,8 mm (P03); panacompu.com cũng ghi 112,1°"
+cam_2mp.power_w,6.5,W,"https://en.ivel.pl/p21542,ip-camera-ds-2cd1023g0e-i-2-8mm-c-1080p-hikvision.html",2026-10-27,"≤ 6,5 W qua PoE, ≤ 5 W ở 12 VDC (nhà phân phối ivel.pl); lấy mức cao"
+cam_2mp.sd_slot,0,có=1/không=0,"https://en.ivel.pl/p21542,ip-camera-ds-2cd1023g0e-i-2-8mm-c-1080p-hikvision.html",2026-10-27,Memory card slot: No
+cam_4k_28.h_pixels,3840,px,https://www.videor.com/de/generate/datasheet/render/product_sku/231999,2026-10-27,"Hikvision DS-2CD2083G2-IU (2.8mm), 3840×2160"
+cam_4k_28.hfov_deg,107,độ,https://www.videor.com/de/generate/datasheet/render/product_sku/231999,2026-10-27,Datasheet Videor: Bildwinkel horizontal 107°
+cam_4k_28.price_vnd,2690000,VND,https://shopcamerahd.com/camera-ip-hikvision-8-0-mp-ip-hikvision-ds-2cd2083g2-li2u/,2026-10-27,DS-2CD2083G2-IU giá hiện tại 2.690.000 (mục sản phẩm liên quan trên trang này). Nguồn 2: lapcameragiatot.com/ds-2cd2083g2-iu 2.460.000 (giảm từ 5.270.000). Lấy mức cao
+cam_4k_28.power_w,7.2,W,https://lapcameragiatot.com/ds-2cd2083g2-iu,2026-10-27,"max. 7,2 W (chỗ khác trên trang ghi max. 7 W); lấy mức cao"
+cam_4k_28.sd_slot,1,có=1/không=0,https://lapcameragiatot.com/ds-2cd2083g2-iu,2026-10-27,"Built-in memory card slot, microSD tới 512 GB"
+cam_4k_40.h_pixels,3840,px,https://www.videor.com/de/generate/datasheet/render/product_sku/232001,2026-10-27,"Hikvision DS-2CD2083G2-IU (4mm), 3840×2160"
+cam_4k_40.hfov_deg,87,độ,https://www.videor.com/de/generate/datasheet/render/product_sku/232001,2026-10-27,Datasheet Videor: Bildwinkel horizontal 87°
+cam_4k_40.price_vnd,2690000,VND,https://shopcamerahd.com/camera-ip-hikvision-8-0-mp-ip-hikvision-ds-2cd2083g2-li2u/,2026-10-27,"Cùng model, ống 4 mm; giá như bản 2,8 mm (lapcameragiatot ghi 4 mm là ống chuẩn, 2,8/6 mm tuỳ chọn)"
+cam_4k_40.power_w,7.2,W,https://lapcameragiatot.com/ds-2cd2083g2-iu,2026-10-27,"Như bản 2,8 mm"
+cam_4k_40.sd_slot,1,có=1/không=0,https://lapcameragiatot.com/ds-2cd2083g2-iu,2026-10-27,"Như bản 2,8 mm"
+oak4s.h_pixels,8000,px,https://docs.luxonis.com/hardware/products/OAK%204%20S,2026-10-27,IMX586 48 MP; công cụ tính FOV trên trang dùng 8000×6000
+oak4s.hfov_deg,67.3,độ,https://docs.luxonis.com/hardware/products/OAK%204%20S,2026-10-27,"Bản Auto Focus (Fixed Focus 66°, Wide FOV 95°); P03 dùng 67°"
+oak4s.price_usd,949,USD,https://traditional-milk.atlassian.net/wiki/spaces/~7120204f8c1fdfbeb646c882494b9ab507ea3f/pages/2392147,2026-09-24,Theo P03 (quyết định 2). Trang Luxonis không hiện giá ngày 27/10; CNX 2025: OAK 4 S từ $749 (https://www.cnx-software.com/?p=161733); Waveshare $1.049
+oak4s.power_w,25,W,https://docs.luxonis.com/hardware/products/OAK%204%20S,2026-10-27,Max peak: 25W
+oak4s.storage_gb,128,GB,https://www.waveshare.com/wiki/OAK_4_S,2026-10-27,"Storage 128GB, RAM 8GB (Waveshare); P03 cũng ghi 128 GB"
+box_rpi5.price_vnd,7297000,VND,https://www.cytrontech.vn/c-raspberry-pi-5,2026-10-27,"Bộ chạy được: board Pi 5 8GB 5.994.000 (Cytron, đang hết hàng) + nguồn 27W chính hãng 405.000 (hshop.vn) + vỏ kim loại có quạt SP52 298.000 (pivietnam.com.vn) + thẻ microSD 128GB 600.000"
+box_rpi5.power_w,8.8,W,https://raspberry.tips/en/faq/raspberry-pi-power-consumption-update-2026-all-models-compared,2026-10-27,"Tải CPU đầy cả 4 nhân ≈ 8,8 W; đỉnh tới khoảng 16 W khi có SSD USB và video 4K; nguồn 27 W"
+box_rpi5.storage_gb,128,GB,https://tuanphong.vn/the-nho-microsd/the-nho-128gb-microsdxc-sandisk-high-endurance,2026-10-27,Thẻ microSD 128GB trong bộ
+box_rpi5.cpu_st,764,Geekbench 6 single-core,https://www.raspberrypi.com/news/benchmarking-raspberry-pi-5/,2026-10-27,"Trung bình hơn 100 lần chạy, trang nhớ 4 KB (CNX: 789)"
+box_rpi5.hevc_hw,1,có=1/không=0,https://www.raspberrypi.com/products/raspberry-pi-5/,2026-10-27,4Kp60 HEVC decoder
+box_n100.price_vnd,9710316,VND,https://www.newegg.com/beelink-barebone-systems-mini-pc/p/2SW-0012-000T6,2026-10-27,"Beelink Mini S12 Pro N100 16GB/500GB: $339 (Newegg, Beelink bán) × 26.040 × 1,1 (VAT nhập khẩu 10%, chưa gồm vận chuyển). Không tìm thấy giá bán ở Việt Nam"
+box_n100.power_w,25,W,https://www.notebookcheck.com/Beelink-Mini-S12-Pro-Mini-PC-im-Testdebuet-mit-Intel-N100.761046.0.html,2026-10-27,"Giới hạn công suất của N100 trong máy này: 25 W ngắn hạn (PL2), 20 W kéo dài (PL1); chưa có số đo ở ổ cắm"
+box_n100.storage_gb,500,GB,https://www.newegg.com/beelink-barebone-systems-mini-pc/p/2SW-0012-000T6,2026-10-27,SSD 500 GB có sẵn
+box_n100.cpu_st,1213,Geekbench 6 single-core,https://www.cnx-software.com/2024/04/29/raspberry-pi-5-intel-n100-mini-pc-comparison-features-benchmarks-price/,2026-10-27,GEEKOM Mini Air12 (N100)
+box_n100.hevc_hw,1,có=1/không=0,https://www.intel.com/content/www/us/en/products/sku/231803/intel-processor-n100-6m-cache-up-to-3-40-ghz/specifications.html,2026-10-27,Intel Quick Sync Video (chưa mở trang trong phiên này)
+box_orin.price_vnd,20580000,VND,https://www.cytrontech.vn/p-nvidia-jetson-orin-nano-super-kits,2026-10-27,"Dev kit 8GB 19.980.000 đã gồm VAT (Cytron, nhà phân phối chính hãng; có nguồn 45 W) + thẻ microSD 128GB 600.000. Nguồn 2: hshop.vn 17.280.000, HugoTech 19.500.000. Lấy mức cao"
+box_orin.power_w,25,W,https://developer.nvidia.com/embedded/jetson-modules,2026-10-27,Jetson Orin Nano: power options between 7 W and 25 W
+box_orin.storage_gb,128,GB,https://tuanphong.vn/the-nho-microsd/the-nho-128gb-microsdxc-sandisk-high-endurance,2026-10-27,Thẻ microSD 128GB thêm vào bộ
+box_orin.cpu_st,807,Geekbench 6 single-core,https://browser.geekbench.com/v6/cpu/18882670,2026-10-27,"Jetson Orin Nano Super (6 nhân Cortex-A78AE, 1,73 GHz): 807 và 813 ở hai lần chạy người dùng gửi (cùng v6/cpu/18430006); lấy số thấp"
+box_orin.hevc_hw,1,có=1/không=0,https://hshop.vn/may-tinh-nhung-ai-nvidia-jetson-orin-nano-super-developer-kit,2026-10-27,Giải mã H.265 4K bằng phần cứng theo thông số Jetson Orin Nano (chưa kiểm chứng trên trang của NVIDIA)
+cpu_long.cpu_st,3220,Geekbench 6 single-core,https://www.cpu-monkey.com/en/benchmark-amd_ryzen_threadripper_9960x-geekbench_6_single_core,2026-10-27,AMD Ryzen Threadripper 9960X (máy long)
+cpu_cloud.cpu_st,1142,Geekbench 6 single-core,https://sparecores.com/server/aws/c5d.xlarge,2026-10-27,"c5d.xlarge, cùng CPU Xeon Platinum 8124M với ml.c5.xlarge; trang không ghi phiên bản Geekbench (chưa kiểm chứng là bản 6); c5.metal (8275CL) GB6 = 1.388"
+aws.sm_async_cpu_h,0.257,USD/giờ,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonSageMaker/current/ap-northeast-1/index.json,2026-10-27,usagetype APN1-AsyncInf:ml.c5.xlarge; publicationDate 2026-10-26
+aws.kvs_in_gb,0.010965,USD/GB,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,APN1-BytesIn; publicationDate 2026-09-30
+aws.kvs_store_gbmo,0.025,USD/GB-tháng,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,APN1-BytesHr
+aws.kvs_getimages_img,1.8e-05,USD/ảnh,https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonKinesisVideo/current/ap-northeast-1/index.json,2026-10-27,"APN1-HighRes-ImagesCount (ảnh trên 1080p); ảnh 1080p trở xuống là 0,00001"
+vendor.h265_8mp_mbps_low,5,Mbps,https://www.ipcamtalk.com/goto/post?id=292334,2026-10-27,"Người dùng IPCamTalk: Hikvision 4K H.265, 20 fps, max bitrate 5000 Kbps (nguồn cộng đồng)"
+vendor.h265_8mp_mbps_high,8,Mbps,https://securitycamcenter.com/hikvision-recommended-video-settings/,2026-10-27,"Bảng khuyến nghị 8192 Kbps cho 4K/8MP (trang hướng dẫn, không phải của Hikvision); đại lý HiLook UK ghi 8–12 Mbps; công cụ tính của Hikvision chưa mở được"
