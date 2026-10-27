@@ -34,11 +34,12 @@ def aws(tmp_path):
 def shop(tmp_path):
     return sources_from(tmp_path, [
         ("fx.vnd_per_usd", 25_000), ("power.vnd_per_kwh", 3_000), ("plan4g_report.price_vnd_month", 200_000),
-        ("router4g.price_vnd", 1_000_000), ("microsd128.price_vnd", 250_000),
+        ("router4g.price_vnd", 1_000_000), ("microsd128.price_vnd", 250_000), ("poe_injector.price_vnd", 500_000),
         ("cam_2mp.sd_slot", 0), ("cam_2mp.power_w", 6.5),
         ("cam_4k_28.price_vnd", 2_500_000), ("cam_4k_28.sd_slot", 1), ("cam_4k_28.power_w", 7.2),
         ("oak4s.price_usd", 949), ("oak4s.power_w", 25),
-        ("box_n100.price_vnd", 5_000_000), ("box_n100.power_w", 25), ("box_rpi5.power_w", 8.8)])
+        ("box_n100.price_vnd", 5_000_000), ("box_n100.power_w", 25), ("box_rpi5.price_vnd", 7_500_000),
+        ("box_rpi5.power_w", 8.8)])
 
 
 def test_totals():
@@ -76,11 +77,16 @@ def test_b_takes_frames_at_the_price_for_the_cameras_resolution(p03, aws):
 
 def test_one_time_counts_cameras_per_store_and_one_box_per_store(shop):
     c = Combo("C", "cam_4k_28", "box_n100", 0.5, "plan4g_report", 2, "cpu")
-    assert one_time_usd(c, shop) == pytest.approx(30 * 2 * 100 + 30 * 200 + 15 * 40)       # camera, hộp, router
+    assert one_time_usd(c, shop) == pytest.approx(30 * 2 * (100 + 20) + 30 * 200 + 15 * 40)   # camera + PoE, hộp, router
     a = Combo("A", "cam_4k_28", None, 0.0, "plan4g_report", 1, "cpu")
-    assert one_time_usd(a, shop) == pytest.approx(30 * (100 + 10))                          # camera + thẻ 128 GB
+    assert one_time_usd(a, shop) == pytest.approx(30 * (100 + 20 + 10))                      # camera + PoE + thẻ 128 GB
     d = Combo("D", "oak4s", None, 1.0, "plan4g_report", 1, "cpu")
-    assert one_time_usd(d, shop) == pytest.approx(30 * 949 + 30 * 40)
+    assert one_time_usd(d, shop) == pytest.approx(30 * (949 + 20) + 30 * 40)
+
+
+def test_the_stores_own_2mp_camera_needs_no_new_power_supply(shop):
+    c = Combo("C", "cam_2mp", "box_rpi5", 0.0, "plan4g_report", 1, "cpu")
+    assert one_time_usd(c, shop) == pytest.approx(30 * 300)                                  # chỉ có hộp
 
 
 def test_monthly_adds_4g_and_power_but_not_an_existing_cameras_power(shop):

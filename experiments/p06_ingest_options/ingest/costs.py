@@ -110,15 +110,16 @@ def electricity_monthly_usd(power_w: float, n_devices: int, vnd_per_kwh: float, 
 
 
 def one_time_usd(combo: Combo, sources) -> float:
-    """Cameras (none for the store's own 2 MP camera) and a 128 GB card for A and B when the camera has a slot, per
-    camera; one box and, for stores without WiFi, one 4G router per store."""
+    """Cameras with a PoE injector to power each (none for the store's own 2 MP camera, already installed) and a
+    128 GB card for A and B when the camera has a slot, per camera; one box and, for stores without WiFi, one 4G
+    router per store."""
     fx = value(sources, "fx.vnd_per_usd")
     if combo.camera == "cam_2mp":
         camera = 0.0
     elif combo.camera == "oak4s":
-        camera = value(sources, "oak4s.price_usd")
+        camera = value(sources, "oak4s.price_usd") + value(sources, "poe_injector.price_vnd") / fx
     else:
-        camera = value(sources, f"{combo.camera}.price_vnd") / fx
+        camera = (value(sources, f"{combo.camera}.price_vnd") + value(sources, "poe_injector.price_vnd")) / fx
     card = 0.0
     if combo.option in ("A", "B") and value(sources, f"{combo.camera}.sd_slot"):
         card = value(sources, "microsd128.price_vnd") / fx

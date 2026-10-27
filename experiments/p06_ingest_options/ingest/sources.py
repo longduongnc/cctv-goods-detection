@@ -13,7 +13,7 @@ _BOX = ("price_vnd", "power_w", "storage_gb", "cpu_st", "hevc_hw")
 REQUIRED_KEYS = (
     "fx.vnd_per_usd", "power.vnd_per_kwh",
     "plan4g_sd100.price_vnd_month", "plan4g_sd100.gb_per_day", "plan4g_report.price_vnd_month",
-    "router4g.price_vnd", "microsd128.price_vnd",
+    "router4g.price_vnd", "microsd128.price_vnd", "poe_injector.price_vnd",
     "cam_2mp.h_pixels", "cam_2mp.hfov_deg", "cam_2mp.power_w", "cam_2mp.sd_slot",
     *(f"{cam}.{field}" for cam in ("cam_4k_28", "cam_4k_40") for field in _CAMERA),
     "oak4s.h_pixels", "oak4s.hfov_deg", "oak4s.price_usd", "oak4s.power_w", "oak4s.storage_gb",
