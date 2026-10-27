@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from ingest.costs import (Combo, cloud_monthly_usd, electricity_monthly_usd, fourg_monthly_usd, load_p03, monthly_usd,
-                          one_time_usd, p03_breakdown, router_one_time_usd, totals)
+from ingest.costs import (Combo, cloud_monthly_usd, cloud_timing, electricity_monthly_usd, fourg_monthly_usd, load_p03,
+                          monthly_usd, one_time_usd, p03_breakdown, router_one_time_usd, totals)
 from ingest.sources import load_sources
 
 REPO = Path(__file__).resolve().parents[3]
@@ -94,3 +94,11 @@ def test_monthly_adds_4g_and_power_but_not_an_existing_cameras_power(shop):
     assert monthly_usd(c, shop, cloud_usd=100.0) == pytest.approx(100 + 120 + electricity_monthly_usd(32.2, 30, 3_000, 25_000))
     old = Combo("C", "cam_2mp", "box_rpi5", 0.0, "plan4g_report", 1, "cpu")                 # camera 2 MP đã chạy sẵn
     assert monthly_usd(old, shop, cloud_usd=0.0) == pytest.approx(electricity_monthly_usd(8.8, 30, 3_000, 25_000))
+
+
+def test_cloud_timing_follows_the_cameras_frame_size():
+    rows = [dict(megapixels="2.0736", target="cloud", filter_ms_frame="100", count_ms_image="1000"),
+            dict(megapixels="8.2944", target="cloud", filter_ms_frame="400", count_ms_image="1100"),
+            dict(megapixels="8.2944", target="box_rpi5", filter_ms_frame="900", count_ms_image="3000")]
+    assert cloud_timing(rows, "cam_2mp") == dict(filter_ms_cloud=100.0, count_ms_cloud=1000.0)
+    assert cloud_timing(rows, "cam_4k_28") == cloud_timing(rows, "oak4s") == dict(filter_ms_cloud=400.0, count_ms_cloud=1100.0)

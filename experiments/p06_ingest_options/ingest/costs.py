@@ -96,6 +96,16 @@ def cloud_monthly_usd(option: str, cams_per_store: int, processing: str, p03, so
     return p03.total(bill)
 
 
+def cloud_timing(edge_rows: list[dict], camera: str) -> dict:
+    """The cloud's ms per frame (filter) and per picture (count) at the camera's frame size: the store's 2 MP camera at
+    the smallest size timed, every other camera at the largest (8 MP; the OAK 4 S's 48 MP pictures were not timed)."""
+    cloud = [r for r in edge_rows if r["target"] == "cloud"]
+    sizes = sorted({float(r["megapixels"]) for r in cloud})
+    size = sizes[0] if camera == "cam_2mp" else sizes[-1]
+    row = next(r for r in cloud if float(r["megapixels"]) == size)
+    return dict(filter_ms_cloud=float(row["filter_ms_frame"]), count_ms_cloud=float(row["count_ms_image"]))
+
+
 def fourg_monthly_usd(n_stores: int, no_wifi_share: float, plan_vnd: float, fx: float) -> float:
     return n_stores * no_wifi_share * plan_vnd / fx
 
@@ -153,14 +163,13 @@ def table(sources, results: Path, repo_root: Path) -> list[dict]:
     bandwidth = {(r["option"], r["camera"]): r for r in _read(results / "bandwidth.csv")}
     g3 = {r["camera"]: r["g3"] == "True" for r in _read(results / "resolution.csv")
           if float(r["distance_m"]) == G3_DISTANCE_M}
-    cloud_cpu = next(r for r in _read(results / "edge_timing.csv") if r["target"] == "cloud")
-    timing = dict(filter_ms_cloud=float(cloud_cpu["filter_ms_frame"]), count_ms_cloud=float(cloud_cpu["count_ms_image"]))
+    edge = _read(results / "edge_timing.csv")
     p03 = load_p03(repo_root)
     rows = []
     for c in combos():
         bw = bandwidth[(c.option, c.camera)]
-        cloud = cloud_monthly_usd(c.option, c.cams_per_store, c.processing, p03, sources,
-                                  float(bw["image_mb_high"]), float(bw["gb_day_high"]), timing, camera=c.camera)
+        cloud = cloud_monthly_usd(c.option, c.cams_per_store, c.processing, p03, sources, float(bw["image_mb_high"]),
+                                  float(bw["gb_day_high"]), cloud_timing(edge, c.camera), camera=c.camera)
         once, month = one_time_usd(c, sources), monthly_usd(c, sources, cloud)
         t12w, t12m = totals(once, month)
         rows.append(dict(asdict(c), box=c.box or "", cloud_usd=round(cloud, 2), one_time_usd=round(once, 2),

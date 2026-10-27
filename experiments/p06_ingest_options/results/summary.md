@@ -4,7 +4,7 @@ Sinh tự động bằng `python -m ingest.report`. Tiền tính bằng USD, 30 
 
 ## 1. Quyết định
 
-**`done`.** Tổ hợp C rẻ nhất qua cả G1–G3 là C, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $12.076 trả một lần, $396 mỗi tháng, $16.830 sau 12 tháng (mỗi tiệm $403 một lần và $13 mỗi tháng). Tổ hợp rẻ nhất qua cả ba điều kiện là D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5 với $16.786; C bằng 100,3% mức đó, trong ngưỡng 110% của P06.
+**`done`.** Tổ hợp C rẻ nhất qua cả G1–G3 là C, CCTV 4K, ống 2,8 mm, mini PC N100: $10.684 trả một lần, $439 mỗi tháng, $15.949 sau 12 tháng (mỗi tiệm $356 một lần và $15 mỗi tháng). Tổ hợp rẻ nhất qua cả ba điều kiện là D, CCTV 4K, ống 2,8 mm, mini PC N100 với $15.903; C bằng 100,3% mức đó, trong ngưỡng 110% của P06.
 
 Trượt điều kiện: A và B gửi mặt người lên cloud (G2); B vượt gói 4G (G1); camera 2 MP có sẵn cho hộp dưới 60 px ở 2 m (G3).
 
@@ -12,56 +12,56 @@ Trượt điều kiện: A và B gửi mặt người lên cloud (G2); B vượt
 
 | Phương án | Camera | Hộp | Một lần (30 tiệm) | Mỗi tháng | Sau 12 tuần | Sau 12 tháng | Điều kiện |
 |---|---|---|---|---|---|---|---|
-| A · camera tự gửi ảnh | 2 MP có sẵn | — | $570 | $353 | $1.560 | $4.811 | trượt G2, G3 |
-| A · camera tự gửi ảnh | CCTV 4K, ống 2,8 mm | — | $4.361 | $376 | $5.412 | $8.867 | trượt G2 |
-| A · camera tự gửi ảnh | CCTV 4K, ống 4 mm | — | $4.361 | $376 | $5.412 | $8.867 | trượt G2 |
-| D · hộp đếm luôn | 2 MP có sẵn | Raspberry Pi 5 | $8.977 | $371 | $10.015 | $13.424 | trượt G3 |
-| C · hộp lọc, cloud đếm | 2 MP có sẵn | Raspberry Pi 5 | $8.977 | $374 | $10.024 | $13.465 | trượt G3 |
-| B · đẩy video lên cloud | 2 MP có sẵn | — | $570 | $1.310 | $4.238 | $16.289 | trượt G1, G2, G3 |
-| D · hộp đếm luôn | CCTV 4K, ống 2,8 mm | Raspberry Pi 5 | $12.076 | $393 | $13.175 | $16.786 | qua |
-| D · hộp đếm luôn | CCTV 4K, ống 4 mm | Raspberry Pi 5 | $12.076 | $393 | $13.175 | $16.786 | qua |
-| C · hộp lọc, cloud đếm | CCTV 4K, ống 2,8 mm | Raspberry Pi 5 | $12.076 | $396 | $13.185 | $16.830 | qua |
-| C · hộp lọc, cloud đếm | CCTV 4K, ống 4 mm | Raspberry Pi 5 | $12.076 | $396 | $13.185 | $16.830 | qua |
-| B · đẩy video lên cloud | CCTV 4K, ống 2,8 mm | — | $4.361 | $1.332 | $8.090 | $20.344 | trượt G1, G2 |
-| B · đẩy video lên cloud | CCTV 4K, ống 4 mm | — | $4.361 | $1.332 | $8.090 | $20.344 | trượt G1, G2 |
-| D · hộp đếm luôn | OAK 4 S | — | $29.040 | $443 | $30.280 | $34.355 | qua |
-| C · hộp lọc, cloud đếm | OAK 4 S | — | $29.040 | $448 | $30.296 | $34.421 | qua |
+| A · camera tự gửi ảnh | 2 MP có sẵn | — | $570 | $354 | $1.561 | $4.816 | trượt G2, G3 |
+| B · đẩy video lên cloud | 2 MP có sẵn | — | $570 | $722 | $2.593 | $9.239 | trượt G1, G2, G3 |
+| A · camera tự gửi ảnh | CCTV 4K, ống 2,8 mm | — | $4.925 | $382 | $5.996 | $9.513 | trượt G2 |
+| A · camera tự gửi ảnh | CCTV 4K, ống 4 mm | — | $4.925 | $382 | $5.996 | $9.513 | trượt G2 |
+| D · hộp đếm luôn | 2 MP có sẵn | mini PC N100 | $7.021 | $413 | $8.177 | $11.976 | trượt G3 |
+| C · hộp lọc, cloud đếm | 2 MP có sẵn | mini PC N100 | $7.021 | $417 | $8.187 | $12.020 | trượt G3 |
+| D · hộp đếm luôn | CCTV 4K, ống 2,8 mm | mini PC N100 | $10.684 | $435 | $11.902 | $15.903 | qua |
+| D · hộp đếm luôn | CCTV 4K, ống 4 mm | mini PC N100 | $10.684 | $435 | $11.902 | $15.903 | qua |
+| C · hộp lọc, cloud đếm | CCTV 4K, ống 2,8 mm | mini PC N100 | $10.684 | $439 | $11.913 | $15.949 | qua |
+| C · hộp lọc, cloud đếm | CCTV 4K, ống 4 mm | mini PC N100 | $10.684 | $439 | $11.913 | $15.949 | qua |
+| B · đẩy video lên cloud | CCTV 4K, ống 2,8 mm | — | $4.925 | $1.726 | $9.758 | $25.637 | trượt G1, G2 |
+| B · đẩy video lên cloud | CCTV 4K, ống 4 mm | — | $4.925 | $1.726 | $9.758 | $25.637 | trượt G1, G2 |
+| D · hộp đếm luôn | OAK 4 S | — | $29.605 | $443 | $30.845 | $34.919 | qua |
+| C · hộp lọc, cloud đếm | OAK 4 S | — | $29.605 | $449 | $30.861 | $34.989 | qua |
 
 ## 3. Độ vững
 
 Quyết định giữ nguyên `done` ở 12/24 biến thể (tỷ lệ tiệm không WiFi 0/50/100%, 4G 100.000 hoặc 200.000 đ, 1 hoặc 2 camera mỗi tiệm, cloud đếm bằng CPU hoặc GPU 30 giây/ảnh như P03).
 
-- **Cloud đếm bằng CPU (đo được, model hiện tại):** `done` ở 12/12 biến thể; C bằng 100,2–100,4% tổ hợp rẻ nhất.
-- **Cloud đếm bằng GPU 30 giây/ảnh (giả định của P03):** `done` ở 0/12 biến thể; C bằng 111,6–123,2% tổ hợp rẻ nhất.
+- **Cloud đếm bằng CPU (đo được, model hiện tại):** `done` ở 12/12 biến thể; C bằng 100,3–100,4% tổ hợp rẻ nhất.
+- **Cloud đếm bằng GPU 30 giây/ảnh (giả định của P03):** `done` ở 0/12 biến thể; C bằng 112,1–123,6% tổ hợp rẻ nhất.
 
 Khi cloud phải đếm bằng GPU, khoản GPU (khoảng $180/tháng ở P03) làm C đắt hơn D, vì D đếm ngay trên hộp. Con số đó giả định hộp chỉ có CPU vẫn kịp đếm 14 ảnh mỗi ngày với model nặng như vậy *(chưa kiểm chứng)*. Với model hiện tại (0,48 giây/ảnh trên CPU, báo cáo 17/10), biến thể CPU mới sát thực tế.
 
 | Không WiFi | 4G/tháng | Camera/tiệm | Cloud đếm | Kết quả | C so với rẻ nhất | Rẻ nhất qua G1–G3 |
 |---|---|---|---|---|---|---|
-| 0% | 200.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $14.834 |
-| 0% | 200.000 đ | 1 | GPU (P03) | `closed-fail` | 114,6% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $14.834 |
-| 0% | 200.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $18.240 |
-| 0% | 200.000 đ | 2 | GPU (P03) | `closed-fail` | 123,2% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $18.240 |
-| 0% | 100.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $14.834 |
-| 0% | 100.000 đ | 1 | GPU (P03) | `closed-fail` | 114,6% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $14.834 |
-| 0% | 100.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $18.240 |
-| 0% | 100.000 đ | 2 | GPU (P03) | `closed-fail` | 123,2% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $18.240 |
-| 50% | 200.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $16.786 |
-| 50% | 200.000 đ | 1 | GPU (P03) | `closed-fail` | 112,9% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $16.786 |
-| 50% | 200.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $20.193 |
-| 50% | 200.000 đ | 2 | GPU (P03) | `closed-fail` | 121,0% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $20.193 |
-| 50% | 100.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $16.095 |
-| 50% | 100.000 đ | 1 | GPU (P03) | `closed-fail` | 113,5% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $16.095 |
-| 50% | 100.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $19.502 |
-| 50% | 100.000 đ | 2 | GPU (P03) | `closed-fail` | 121,7% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $19.502 |
-| 100% | 200.000 đ | 1 | CPU | `done` | 100,2% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $18.739 |
-| 100% | 200.000 đ | 1 | GPU (P03) | `closed-fail` | 111,6% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $18.739 |
-| 100% | 200.000 đ | 2 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $22.146 |
-| 100% | 200.000 đ | 2 | GPU (P03) | `closed-fail` | 119,1% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $22.146 |
-| 100% | 100.000 đ | 1 | CPU | `done` | 100,2% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $17.357 |
-| 100% | 100.000 đ | 1 | GPU (P03) | `closed-fail` | 112,5% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $17.357 |
-| 100% | 100.000 đ | 2 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $20.763 |
-| 100% | 100.000 đ | 2 | GPU (P03) | `closed-fail` | 120,4% | D, CCTV 4K, ống 2,8 mm, Raspberry Pi 5: $20.763 |
+| 0% | 200.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $13.950 |
+| 0% | 200.000 đ | 1 | GPU (P03) | `closed-fail` | 115,5% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $13.950 |
+| 0% | 200.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $17.921 |
+| 0% | 200.000 đ | 2 | GPU (P03) | `closed-fail` | 123,6% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $17.921 |
+| 0% | 100.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $13.950 |
+| 0% | 100.000 đ | 1 | GPU (P03) | `closed-fail` | 115,5% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $13.950 |
+| 0% | 100.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $17.921 |
+| 0% | 100.000 đ | 2 | GPU (P03) | `closed-fail` | 123,6% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $17.921 |
+| 50% | 200.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $15.903 |
+| 50% | 200.000 đ | 1 | GPU (P03) | `closed-fail` | 113,6% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $15.903 |
+| 50% | 200.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $19.874 |
+| 50% | 200.000 đ | 2 | GPU (P03) | `closed-fail` | 121,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $19.874 |
+| 50% | 100.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $15.212 |
+| 50% | 100.000 đ | 1 | GPU (P03) | `closed-fail` | 114,2% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $15.212 |
+| 50% | 100.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $19.183 |
+| 50% | 100.000 đ | 2 | GPU (P03) | `closed-fail` | 122,1% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $19.183 |
+| 100% | 200.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $17.856 |
+| 100% | 200.000 đ | 1 | GPU (P03) | `closed-fail` | 112,1% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $17.856 |
+| 100% | 200.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $21.827 |
+| 100% | 200.000 đ | 2 | GPU (P03) | `closed-fail` | 119,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $21.827 |
+| 100% | 100.000 đ | 1 | CPU | `done` | 100,3% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $16.473 |
+| 100% | 100.000 đ | 1 | GPU (P03) | `closed-fail` | 113,1% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $16.473 |
+| 100% | 100.000 đ | 2 | CPU | `done` | 100,4% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $20.444 |
+| 100% | 100.000 đ | 2 | GPU (P03) | `closed-fail` | 120,7% | D, CCTV 4K, ống 2,8 mm, mini PC N100: $20.444 |
 
 ## 4. Độ nét (E3) và dung lượng (E1)
 
@@ -85,9 +85,9 @@ Hộp 180 ml cao 11,0 cm *(chưa kiểm chứng — chưa đo hộp thật)*. G3
 | A | 2 MP có sẵn | 0,017–0,019 | qua | đo |
 | A | CCTV 4K, ống 2,8 mm | 0,068–0,075 | qua | đo |
 | A | CCTV 4K, ống 4 mm | 0,068–0,075 | qua | đo |
-| B | 2 MP có sẵn | 31,5–50,4 | trượt | bitrate nhà sản xuất *(chưa kiểm chứng)* |
-| B | CCTV 4K, ống 2,8 mm | 31,5–50,4 | trượt | bitrate nhà sản xuất *(chưa kiểm chứng)* |
-| B | CCTV 4K, ống 4 mm | 31,5–50,4 | trượt | bitrate nhà sản xuất *(chưa kiểm chứng)* |
+| B | 2 MP có sẵn | 12,6–12,6 | trượt | bitrate tham khảo từ diễn đàn và trang hướng dẫn *(chưa kiểm chứng)* |
+| B | CCTV 4K, ống 2,8 mm | 31,5–50,4 | trượt | bitrate tham khảo từ diễn đàn và trang hướng dẫn *(chưa kiểm chứng)* |
+| B | CCTV 4K, ống 4 mm | 31,5–50,4 | trượt | bitrate tham khảo từ diễn đàn và trang hướng dẫn *(chưa kiểm chứng)* |
 | C | 2 MP có sẵn | 0,017–0,019 | qua | đo |
 | C | CCTV 4K, ống 2,8 mm | 0,068–0,075 | qua | đo |
 | C | CCTV 4K, ống 4 mm | 0,068–0,075 | qua | đo |
@@ -101,25 +101,29 @@ Video mã hoá lại ở 15 fps để đối chiếu (Mbps trung vị): iPhone 1
 
 ## 5. Sức hộp (E2) — ước tính quy đổi *(chưa kiểm chứng trên hộp thật)*
 
-Đo trên 4 luồng CPU của máy long (39 khung), quy đổi theo điểm Geekbench 6 đơn luồng. Hộp tính như chỉ có CPU.
+Đo trên 4 luồng CPU của máy long: 39 khung ở tiệm, mỗi khung đưa về đúng số điểm ảnh của camera 2 MP và của camera 4K (12 khung dọc 480×854 được phóng lên), quy đổi theo điểm Geekbench 6 đơn luồng. Hộp tính như chỉ có CPU. Bước lọc tìm mặt trên cả khung nên chậm dần theo số điểm ảnh.
 
-| Nơi chạy | Lọc (ms/khung) | Đếm (ms/ảnh) | C: giây cho 60 khung mỗi mốc 15 phút | D: giây máy mỗi ngày | Giải mã HEVC phần cứng |
-|---|---|---|---|---|---|
-| Raspberry Pi 5 | 986 | 2.719 | 59,2 | 3.352 | có |
-| mini PC N100 | 621 | 1.713 | 37,3 | 2.111 | có |
-| Jetson Orin Nano Super | 934 | 2.574 | 56,0 | 3.174 | có |
-| cloud (ml.c5.xlarge) | 660 | 1.819 | 39,6 | 2.243 | — |
+| Khung | Nơi chạy | Lọc (ms/khung) | Đếm (ms/ảnh) | C: giây cho 60 khung mỗi mốc 15 phút | D: giây máy mỗi ngày | Giải mã HEVC phần cứng |
+|---|---|---|---|---|---|---|
+| 2,1 MP | Raspberry Pi 5 | 1.042 | 3.169 | 62,5 | 3.544 | có |
+| 2,1 MP | mini PC N100 | 656 | 1.996 | 39,4 | 2.232 | có *(chưa kiểm chứng)* |
+| 2,1 MP | Jetson Orin Nano Super | 986 | 3.000 | 59,2 | 3.355 | có *(chưa kiểm chứng)* |
+| 2,1 MP | cloud (ml.c5.xlarge) | 697 | 2.120 | 41,8 | 2.371 | — |
+| 8,3 MP | Raspberry Pi 5 | 3.712 | 3.170 | 222,7 | 12.518 | có |
+| 8,3 MP | mini PC N100 | 2.338 | 1.996 | 140,3 | 7.884 | có *(chưa kiểm chứng)* |
+| 8,3 MP | Jetson Orin Nano Super | 3.515 | 3.001 | 210,9 | 11.851 | có *(chưa kiểm chứng)* |
+| 8,3 MP | cloud (ml.c5.xlarge) | 2.484 | 2.120 | 149,0 | 8.375 | — |
 
 ## 6. Rớt mạng (E6)
 
 | Phương án | Camera | Bộ đệm | Chịu được (giờ mở cửa) |
 |---|---|---|---|
 | A | 2 MP có sẵn | 0 GB | mất ảnh ngay |
-| A | CCTV 4K, ống 2,8 mm | 128 GB | trên 1.000 giờ |
-| A | CCTV 4K, ống 4 mm | 128 GB | trên 1.000 giờ |
+| A | CCTV 4K, ống 2,8 mm | 128 GB | trên 1.000 giờ *(chưa kiểm chứng: camera tự ghi vào thẻ khi rớt mạng và gửi bù khi có mạng lại)* |
+| A | CCTV 4K, ống 4 mm | 128 GB | trên 1.000 giờ *(chưa kiểm chứng: camera tự ghi vào thẻ khi rớt mạng và gửi bù khi có mạng lại)* |
 | B | 2 MP có sẵn | 0 GB | mất ảnh ngay |
-| B | CCTV 4K, ống 2,8 mm | 128 GB | 36 giờ |
-| B | CCTV 4K, ống 4 mm | 128 GB | 36 giờ |
+| B | CCTV 4K, ống 2,8 mm | 128 GB | 36 giờ *(chưa kiểm chứng: camera tự ghi vào thẻ khi rớt mạng và gửi bù khi có mạng lại)* |
+| B | CCTV 4K, ống 4 mm | 128 GB | 36 giờ *(chưa kiểm chứng: camera tự ghi vào thẻ khi rớt mạng và gửi bù khi có mạng lại)* |
 | C | 2 MP có sẵn | 128 GB | trên 1.000 giờ |
 | C | CCTV 4K, ống 2,8 mm | 128 GB | trên 1.000 giờ |
 | C | CCTV 4K, ống 4 mm | 128 GB | trên 1.000 giờ |
@@ -154,9 +158,10 @@ Video mã hoá lại ở 15 fps để đối chiếu (Mbps trung vị): iPhone 1
 
 - Chiều cao hộp 11,0 cm chưa đo. Camera 4K ống 2,8 mm (78 px ở 2 m) vẫn qua G3 nếu hộp cao từ 8,45 cm trở lên.
 - Thời gian trên hộp và trên cloud là quy đổi theo điểm Geekbench 6 đơn luồng, chưa đo trên thiết bị thật.
-- Bitrate video của B lấy từ nguồn cộng đồng và đại lý (5–8 Mbps cho 8 MP H.265); B trượt G1 ở mọi bitrate trên 0,32 Mbps, nên kết luận về B không phụ thuộc con số này.
+- Bitrate video của B lấy từ diễn đàn người dùng và trang hướng dẫn, không phải từ hãng; B trượt G1 ở mọi bitrate trên 0,32 Mbps, nên kết luận về B không phụ thuộc con số này.
 - Clip điện thoại quay cầm tay; clip MERL trong repo là bản đã vẽ khung chú thích, độ phân giải 640×472. Chỉ báo E4 chỉ mang tính tham khảo.
-- Giá OAK 4 S theo P03 ($949): trang Luxonis không hiện giá ngày 27/10. Giá mini PC N100 lấy từ Newegg cộng VAT nhập khẩu 10%, chưa gồm vận chuyển.
+- Giá OAK 4 S theo P03 ($949): trang Luxonis không hiện giá ngày 27/10. Mini PC N100 (ZOTAC CI337 nano, 8 GB/256 GB) là hàng đặt trước ở Hacom và sắp về ở Tin Học Ngôi Sao; board Pi 5 8 GB hết hàng ở Cytron, còn ở hshop.vn. Mỗi hộp lấy giá cao hơn trong hai nguồn.
+- Điện của camera mới và hộp tính ở công suất tối đa, chạy 24 giờ mỗi ngày, nên là cận trên.
 - Không tính công lắp đặt, bảo trì, gán nhãn (hoang chốt 27/10).
 
 ## 9. Giả định

@@ -13,6 +13,15 @@ class FrameInfo:
     person_on_shelf: bool
 
 
+def resize_to_megapixels(image_bgr: np.ndarray, megapixels: float) -> np.ndarray:
+    """The frame scaled, keeping its shape, to that many megapixels — up or down — so that every frame of a timing run
+    has the pixel count of one camera."""
+    h, w = image_bgr.shape[:2]
+    scale = (megapixels * 1e6 / (h * w)) ** 0.5
+    interpolation = cv2.INTER_AREA if scale < 1 else cv2.INTER_CUBIC
+    return cv2.resize(image_bgr, (round(w * scale), round(h * scale)), interpolation=interpolation)
+
+
 def sharpness(gray: np.ndarray) -> float:
     """Variance of the Laplacian: higher is sharper."""
     return float(cv2.Laplacian(gray, cv2.CV_64F).var())

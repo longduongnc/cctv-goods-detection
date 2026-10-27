@@ -204,12 +204,15 @@ def render_summary(results: Path) -> str:
         f"{num(sorted(v)[len(v) // 2], 2)}" for k, v in sorted(video.items())) + "."]
 
     out += ["", "## 5. Sức hộp (E2) — ước tính quy đổi *(chưa kiểm chứng trên hộp thật)*", "",
-            "Đo trên 4 luồng CPU của máy long (39 khung), quy đổi theo điểm Geekbench 6 đơn luồng. Hộp tính như chỉ có CPU.", "",
-            "| Nơi chạy | Lọc (ms/khung) | Đếm (ms/ảnh) | C: giây cho 60 khung mỗi mốc 15 phút | D: giây máy mỗi ngày "
-            "| Giải mã HEVC phần cứng |", "|---|---|---|---|---|---|"]
+            "Đo trên 4 luồng CPU của máy long: 39 khung ở tiệm, mỗi khung đưa về đúng số điểm ảnh của camera 2 MP và của "
+            "camera 4K (12 khung dọc 480×854 được phóng lên), quy đổi theo điểm Geekbench 6 đơn luồng. Hộp tính như chỉ có "
+            "CPU. Bước lọc tìm mặt trên cả khung nên chậm dần theo số điểm ảnh.", "",
+            "| Khung | Nơi chạy | Lọc (ms/khung) | Đếm (ms/ảnh) | C: giây cho 60 khung mỗi mốc 15 phút "
+            "| D: giây máy mỗi ngày | Giải mã HEVC phần cứng |", "|---|---|---|---|---|---|---|"]
     for r in _read(results / "edge_timing.csv"):
-        out.append(f"| {BOX[r['target']]} | {num(float(r['filter_ms_frame']))} | {num(float(r['count_ms_image']))} "
-                   f"| {num(float(r['c_s_per_mark']), 1)} | {num(float(r['d_s_per_day']))} | {hevc_cell(r)} |")
+        out.append(f"| {num(float(r['megapixels']), 1)} MP | {BOX[r['target']]} | {num(float(r['filter_ms_frame']))} "
+                   f"| {num(float(r['count_ms_image']))} | {num(float(r['c_s_per_mark']), 1)} | {num(float(r['d_s_per_day']))} "
+                   f"| {hevc_cell(r)} |")
 
     out += ["", "## 6. Rớt mạng (E6)", "", "| Phương án | Camera | Bộ đệm | Chịu được (giờ mở cửa) |", "|---|---|---|---|"]
     seen = set()

@@ -1,9 +1,11 @@
 """E2 on long's machine: milliseconds per frame for the box's filter step (person check, face blur, sharpness) and for
-the current counting pipeline (cv_output.timed_units), on 4 CPU threads. Run it pinned to 4 CPUs:
+the current counting pipeline (cv_output.timed_units), on 4 CPU threads, with every frame scaled to each size asked
+for (2.0736 MP = 1920×1080, 8.2944 MP = 3840×2160). Run it pinned to 4 CPUs:
 
     taskset -c 0-3 env OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 .venv/bin/python -m ingest.run_edge_timing \
-        --images ~/Desktop/Datagent/cv_output_sample/images --person-model ~/Desktop/Datagent/yolo/yolo26s.pt \
-        --face-model data/models/face_detection_yunet_2023mar.onnx --datagent ~/Desktop/Datagent --out results/edge_timing_raw.csv
+        --images ~/Desktop/Datagent/cv_output_sample/images --megapixels 2.0736 8.2944 \
+        --person-model ~/Desktop/Datagent/yolo/yolo26s.pt --face-model data/models/face_detection_yunet_2023mar.onnx \
+        --datagent ~/Desktop/Datagent --out results/edge_timing_raw.csv
 """
 import argparse
 import csv
@@ -13,7 +15,7 @@ from pathlib import Path
 
 import cv2
 
-from ingest.edge_filter import blur_faces, configure_threads, sharpness
+from ingest.edge_filter import blur_faces, configure_threads, resize_to_megapixels, sharpness
 
 IMAGE_TYPES = (".jpg", ".jpeg", ".png")
 
@@ -21,6 +23,7 @@ IMAGE_TYPES = (".jpg", ".jpeg", ".png")
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--images", type=Path, required=True)
+    ap.add_argument("--megapixels", type=float, nargs="+", required=True, help="frame sizes to time, in megapixels")
     ap.add_argument("--person-model", type=Path, required=True, help="YOLO26s COCO weights")
     ap.add_argument("--face-model", type=Path, required=True, help="OpenCV YuNet ONNX")
     ap.add_argument("--datagent", type=Path, required=True, help="~/Desktop/Datagent, for carton_recognition and yolo/")
@@ -43,21 +46,22 @@ def main():
         sharpness(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY))
 
     paths = sorted(p for p in args.images.iterdir() if p.suffix.lower() in IMAGE_TYPES)
-    warm = cv2.imread(str(paths[0]))
-    filter_step(warm.copy())                                      # first calls load the models; keep them out of the timing
-    cv_output.timed_units(warm, yolo, rec, 0.25, 1280)
     rows = []
-    for p in paths:
-        image = cv2.imread(str(p))
-        start = time.perf_counter()
-        filter_step(image.copy())
-        rows.append(dict(image=p.name, step="filter", ms=round((time.perf_counter() - start) * 1000, 2)))
-        _, ms = cv_output.timed_units(image, yolo, rec, 0.25, 1280)
-        rows.append(dict(image=p.name, step="count", ms=round(ms, 2)))
-        print(p.name, rows[-2]["ms"], rows[-1]["ms"], flush=True)
+    for mp in args.megapixels:
+        warm = resize_to_megapixels(cv2.imread(str(paths[0])), mp)
+        filter_step(warm.copy())                                  # first calls (and a new frame size) set the models up;
+        cv_output.timed_units(warm, yolo, rec, 0.25, 1280)        # keep them out of the timing
+        for p in paths:
+            image = resize_to_megapixels(cv2.imread(str(p)), mp)
+            start = time.perf_counter()
+            filter_step(image.copy())
+            rows.append(dict(megapixels=mp, image=p.name, step="filter", ms=round((time.perf_counter() - start) * 1000, 2)))
+            _, ms = cv_output.timed_units(image, yolo, rec, 0.25, 1280)
+            rows.append(dict(megapixels=mp, image=p.name, step="count", ms=round(ms, 2)))
+            print(mp, p.name, rows[-2]["ms"], rows[-1]["ms"], flush=True)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["image", "step", "ms"], lineterminator="\n")
+        writer = csv.DictWriter(f, fieldnames=["megapixels", "image", "step", "ms"], lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 

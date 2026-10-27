@@ -102,3 +102,7 @@ def test_summary_does_not_call_forum_bitrates_the_makers():
 
 def test_limits_state_the_power_basis():
     assert "công suất tối đa" in section(render_summary(RESULTS), "8. Giới hạn")
+
+
+def test_box_timing_shows_the_4k_cameras_frame_size():
+    assert "8,3 MP" in section(render_summary(RESULTS), "5. Sức hộp")

@@ -21,18 +21,21 @@ def scale_ms(ms_ref: float, st_ref: float, st_target: float) -> float:
 
 
 def summarize(raw_rows: list[dict], sources) -> list[dict]:
-    """Median ms of the filter and count steps, scaled to each target; seconds of work per mark (C) and per day (D)."""
-    med = {step: median(float(r["ms"]) for r in raw_rows if r["step"] == step) for step in ("filter", "count")}
+    """For each frame size timed: median ms of the filter and count steps, scaled to each target; seconds of work per
+    mark (C) and per day (D)."""
     st_ref = value(sources, "cpu_long.cpu_st")
     rows = []
-    for target in TARGETS:
-        st = value(sources, f"{'cpu_cloud' if target == 'cloud' else target}.cpu_st")
-        filt, count = scale_ms(med["filter"], st_ref, st), scale_ms(med["count"], st_ref, st)
-        rows.append(dict(target=target, filter_ms_frame=round(filt, 1), count_ms_image=round(count, 1),
-                         c_s_per_mark=round(FRAMES_PER_MARK * filt / 1000, 2),
-                         d_s_per_day=round((MARKS_PER_DAY * FRAMES_PER_MARK * filt + D_IMAGES_PER_DAY * count) / 1000, 1),
-                         hevc_hw="" if target == "cloud" else int(value(sources, f"{target}.hevc_hw")),
-                         hevc_unverified="" if target == "cloud" else int(sources[f"{target}.hevc_hw"].unverified)))
+    for mp in sorted({float(r["megapixels"]) for r in raw_rows}):
+        timed = [r for r in raw_rows if float(r["megapixels"]) == mp]
+        med = {step: median(float(r["ms"]) for r in timed if r["step"] == step) for step in ("filter", "count")}
+        for target in TARGETS:
+            st = value(sources, f"{'cpu_cloud' if target == 'cloud' else target}.cpu_st")
+            filt, count = scale_ms(med["filter"], st_ref, st), scale_ms(med["count"], st_ref, st)
+            rows.append(dict(megapixels=mp, target=target, filter_ms_frame=round(filt, 1), count_ms_image=round(count, 1),
+                             c_s_per_mark=round(FRAMES_PER_MARK * filt / 1000, 2),
+                             d_s_per_day=round((MARKS_PER_DAY * FRAMES_PER_MARK * filt + D_IMAGES_PER_DAY * count) / 1000, 1),
+                             hevc_hw="" if target == "cloud" else int(value(sources, f"{target}.hevc_hw")),
+                             hevc_unverified="" if target == "cloud" else int(sources[f"{target}.hevc_hw"].unverified)))
     return rows
 
 
