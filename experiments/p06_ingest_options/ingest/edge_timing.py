@@ -31,7 +31,8 @@ def summarize(raw_rows: list[dict], sources) -> list[dict]:
         rows.append(dict(target=target, filter_ms_frame=round(filt, 1), count_ms_image=round(count, 1),
                          c_s_per_mark=round(FRAMES_PER_MARK * filt / 1000, 2),
                          d_s_per_day=round((MARKS_PER_DAY * FRAMES_PER_MARK * filt + D_IMAGES_PER_DAY * count) / 1000, 1),
-                         hevc_hw="" if target == "cloud" else int(value(sources, f"{target}.hevc_hw"))))
+                         hevc_hw="" if target == "cloud" else int(value(sources, f"{target}.hevc_hw")),
+                         hevc_unverified="" if target == "cloud" else int(sources[f"{target}.hevc_hw"].unverified)))
     return rows
 
 

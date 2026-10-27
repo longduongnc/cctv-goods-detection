@@ -33,6 +33,11 @@ class Source:
     checked_on: str
     note: str
 
+    @property
+    def unverified(self) -> bool:
+        """The note carries the project's mark for a claim without evidence."""
+        return "chưa kiểm chứng" in self.note
+
 
 def load_sources(path: Path) -> dict[str, Source]:
     """Every row by key. A row without a source, with a date not written YYYY-MM-DD, with a value that is not a

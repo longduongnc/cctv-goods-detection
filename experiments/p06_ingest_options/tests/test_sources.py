@@ -55,3 +55,9 @@ def test_cpu_scores_share_one_scale():
 def test_currencies_are_labelled():
     s = load_sources(SOURCES)
     assert all(s[k].unit == "VND" for k in REQUIRED_KEYS if k.endswith(".price_vnd"))
+
+
+def test_a_note_saying_chua_kiem_chung_marks_the_value_unverified(tmp_path):
+    s = load_sources(write(tmp_path, "a.b,1,u,https://x,2026-10-27,theo đại lý (chưa kiểm chứng)\n"
+                                     "c.d,1,u,https://x,2026-10-27,datasheet\n"))
+    assert s["a.b"].unverified and not s["c.d"].unverified

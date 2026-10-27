@@ -28,22 +28,36 @@ def test_scale_ms():
     assert scale_ms(100.0, st_ref=4000.0, st_target=2000.0) == pytest.approx(200.0)
 
 
-def test_summarize_scales_medians_by_cpu_score(tmp_path):
+def timing_sources(tmp_path, notes=None):
+    notes = notes or {}
     lines = ["key,value,unit,source,checked_on,note"]
     for key, v in (("cpu_long.cpu_st", 3000), ("cpu_cloud.cpu_st", 1000), ("box_rpi5.cpu_st", 750),
                    ("box_n100.cpu_st", 1500), ("box_orin.cpu_st", 600),
                    ("box_rpi5.hevc_hw", 1), ("box_n100.hevc_hw", 1), ("box_orin.hevc_hw", 0)):
-        lines.append(f"{key},{v},u,t,2026-10-27,")
+        lines.append(f"{key},{v},u,t,2026-10-27,{notes.get(key, '')}")
     p = tmp_path / "s.csv"
     p.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    raw = [dict(image="a", step="filter", ms="10"), dict(image="b", step="filter", ms="30"),
-           dict(image="c", step="filter", ms="20"), dict(image="a", step="count", ms="100")]
-    out = {r["target"]: r for r in summarize(raw, load_sources(p))}
+    return load_sources(p)
+
+
+RAW = [dict(image="a", step="filter", ms="10"), dict(image="b", step="filter", ms="30"),
+       dict(image="c", step="filter", ms="20"), dict(image="a", step="count", ms="100")]
+
+
+def test_summarize_scales_medians_by_cpu_score(tmp_path):
+    out = {r["target"]: r for r in summarize(RAW, timing_sources(tmp_path))}
     assert out["box_rpi5"]["filter_ms_frame"] == pytest.approx(80.0)                 # trung vị 20 ms × 3000/750
     assert out["cloud"]["count_ms_image"] == pytest.approx(300.0)                    # 100 ms × 3000/1000
     assert out["box_n100"]["c_s_per_mark"] == pytest.approx(2.4)                     # 60 khung × 40 ms
     assert out["box_n100"]["d_s_per_day"] == pytest.approx(137.2)                    # (56 × 60 × 40 + 14 × 200) ms
     assert out["box_orin"]["hevc_hw"] == 0 and out["cloud"]["hevc_hw"] == ""
+
+
+def test_summarize_marks_an_unverified_hevc_claim(tmp_path):
+    sources = timing_sources(tmp_path, {"box_n100.hevc_hw": "Quick Sync (chưa kiểm chứng)"})
+    out = {r["target"]: r for r in summarize(RAW, sources)}
+    assert out["box_n100"]["hevc_unverified"] == 1 and out["box_rpi5"]["hevc_unverified"] == 0
+    assert out["cloud"]["hevc_unverified"] == ""
 
 
 @pytest.mark.remote

@@ -116,6 +116,12 @@ def _label(r: dict) -> str:
     return f"{r['option']}, {CAMERA[r['camera']]}" + (f", {BOX[r['box']]}" if r["box"] else "")
 
 
+def hevc_cell(r: dict) -> str:
+    """'có', 'không' or '—' (the cloud), marked when the source of the claim says it is unverified."""
+    cell = {"1": "có", "0": "không", "": "—"}[r["hevc_hw"]]
+    return cell + (" *(chưa kiểm chứng)*" if r.get("hevc_unverified") == "1" else "")
+
+
 def render_decision(d: Decision) -> str:
     """The decision paragraph, worded for each outcome: C within the threshold, C over it, no C past the gates, nothing past them."""
     w, c = d.winner, d.best_c
@@ -201,9 +207,8 @@ def render_summary(results: Path) -> str:
             "| Nơi chạy | Lọc (ms/khung) | Đếm (ms/ảnh) | C: giây cho 60 khung mỗi mốc 15 phút | D: giây máy mỗi ngày "
             "| Giải mã HEVC phần cứng |", "|---|---|---|---|---|---|"]
     for r in _read(results / "edge_timing.csv"):
-        hw = {"1": "có", "0": "không", "": "—"}[r["hevc_hw"]]
         out.append(f"| {BOX[r['target']]} | {num(float(r['filter_ms_frame']))} | {num(float(r['count_ms_image']))} "
-                   f"| {num(float(r['c_s_per_mark']), 1)} | {num(float(r['d_s_per_day']))} | {hw} |")
+                   f"| {num(float(r['c_s_per_mark']), 1)} | {num(float(r['d_s_per_day']))} | {hevc_cell(r)} |")
 
     out += ["", "## 6. Rớt mạng (E6)", "", "| Phương án | Camera | Bộ đệm | Chịu được (giờ mở cửa) |", "|---|---|---|---|"]
     seen = set()
@@ -214,6 +219,8 @@ def render_summary(results: Path) -> str:
         seen.add(key)
         hours = float(r["hours_until_full"])
         held = "mất ảnh ngay" if hours == 0 else (f"{num(hours)} giờ" if hours < 1000 else "trên 1.000 giờ")
+        if hours and r["option"] in ("A", "B"):
+            held += " *(chưa kiểm chứng: camera tự ghi vào thẻ khi rớt mạng và gửi bù khi có mạng lại)*"
         out.append(f"| {r['option']} | {CAMERA[r['camera']]} | {num(float(r['buffer_gb']))} GB | {held} |")
 
     out += ["", "## 7. Chỉ báo chọn ảnh (E4) — không dùng để quyết", ""]

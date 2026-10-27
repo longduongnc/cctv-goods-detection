@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ingest.report import decide, gate_label, render_main_table, render_summary, robustness
+from ingest.report import decide, gate_label, hevc_cell, render_main_table, render_summary, robustness
 
 RESULTS = Path(__file__).resolve().parents[1] / "results"
 
@@ -83,3 +83,14 @@ def test_summary_when_no_c_passes_the_gates(tmp_path):
 def test_summary_when_no_combination_passes(tmp_path):
     text = summary_with(tmp_path, lambda r: dict(r, g2="False"))
     assert "Không tổ hợp nào qua cả G1–G3" in section(text, "1. Quyết định")
+
+
+def test_hevc_cell_carries_the_unverified_mark():
+    assert hevc_cell(dict(hevc_hw="1", hevc_unverified="1")) == "có *(chưa kiểm chứng)*"
+    assert hevc_cell(dict(hevc_hw="1", hevc_unverified="0")) == "có"
+    assert hevc_cell(dict(hevc_hw="", hevc_unverified="")) == "—"                    # cloud
+
+
+def test_summary_marks_camera_buffering_unverified():
+    outage = section(render_summary(RESULTS), "6. Rớt mạng")
+    assert "chưa kiểm chứng" in outage
