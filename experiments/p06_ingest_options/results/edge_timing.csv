@@ -1,0 +1,5 @@
+target,filter_ms_frame,count_ms_image,c_s_per_mark,d_s_per_day,hevc_hw
+box_rpi5,986.4,2719.4,59.18,3352.2,1
+box_n100,621.3,1712.8,37.28,2111.4,1
+box_orin,933.8,2574.5,56.03,3173.6,1
+cloud,659.9,1819.3,39.59,2242.6,
