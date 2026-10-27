@@ -116,22 +116,28 @@ def _label(r: dict) -> str:
     return f"{r['option']}, {CAMERA[r['camera']]}" + (f", {BOX[r['box']]}" if r["box"] else "")
 
 
+def render_decision(d: Decision) -> str:
+    """The decision paragraph, worded for each outcome: C within the threshold, C over it, no C past the gates, nothing past them."""
+    w, c = d.winner, d.best_c
+    if not w:
+        return f"**`{d.status}`.** Không tổ hợp nào qua cả G1–G3."
+    cheapest = f"Tổ hợp rẻ nhất qua cả ba điều kiện là {_label(w)} với {usd(w['total_12m_usd'])}"
+    if not c:
+        return f"**`{d.status}`.** Không tổ hợp C nào qua cả G1–G3. {cheapest}."
+    verdict = "trong" if d.ratio <= MAX_RATIO else "vượt"
+    return (f"**`{d.status}`.** Tổ hợp C rẻ nhất qua cả G1–G3 là {_label(c)}: {usd(c['one_time_usd'])} trả một lần, "
+            f"{usd(c['monthly_usd'])} mỗi tháng, {usd(c['total_12m_usd'])} sau 12 tháng "
+            f"(mỗi tiệm {usd(c['one_time_usd'] / 30)} một lần và {usd(c['monthly_usd'] / 30)} mỗi tháng). "
+            f"{cheapest}; C bằng {num(d.ratio * 100, 1)}% mức đó, {verdict} ngưỡng 110% của P06.")
+
+
 def render_summary(results: Path) -> str:
     rows = load_cost_rows(results / "cost.csv")
     d = decide(rows)
-    w, c = d.winner, d.best_c
     out = ["# HOANG-P06 — bảng tổng hợp", "",
            "Sinh tự động bằng `python -m ingest.report`. Tiền tính bằng USD, 30 tiệm. Trường hợp gốc: 1 camera mỗi tiệm, "
            "50% tiệm không có WiFi, 4G 200.000 đ/tháng, cloud đếm bằng CPU. Mọi giá có nguồn ở `inputs/sources.csv`.", "",
-           "## 1. Quyết định", ""]
-    if c:
-        out.append(f"**`{d.status}`.** Tổ hợp C rẻ nhất qua cả G1–G3 là {_label(c)}: {usd(c['one_time_usd'])} trả một lần, "
-                   f"{usd(c['monthly_usd'])} mỗi tháng, {usd(c['total_12m_usd'])} sau 12 tháng "
-                   f"(mỗi tiệm {usd(c['one_time_usd'] / 30)} một lần và {usd(c['monthly_usd'] / 30)} mỗi tháng). "
-                   f"Tổ hợp rẻ nhất qua cả ba điều kiện là {_label(w)} với {usd(w['total_12m_usd'])}; "
-                   f"C bằng {num(d.ratio * 100, 1)}% mức đó, trong ngưỡng 110% của P06.")
-    else:
-        out.append(f"**`{d.status}`.** Không tổ hợp C nào qua cả G1–G3. Tổ hợp thắng: {_label(w)}, {usd(w['total_12m_usd'])}.")
+           "## 1. Quyết định", "", render_decision(d)]
     out += ["", "Trượt điều kiện: A và B gửi mặt người lên cloud (G2); B vượt gói 4G (G1); camera 2 MP có sẵn cho hộp "
             "dưới 60 px ở 2 m (G3).", "", "## 2. Bảng chính (trường hợp gốc)", "", render_main_table(rows), ""]
 
@@ -145,8 +151,9 @@ def render_summary(results: Path) -> str:
         group = [r for r in rob if r["processing"] == proc]
         done = sum(r["status"] == "done" for r in group)
         ratios = [r["ratio"] for r in group if r["ratio"]]
-        out.append(f"- **{name}:** `done` ở {done}/{len(group)} biến thể; C bằng {num(min(ratios) * 100, 1)}–"
-                   f"{num(max(ratios) * 100, 1)}% tổ hợp rẻ nhất.")
+        spread = (f"C bằng {num(min(ratios) * 100, 1)}–{num(max(ratios) * 100, 1)}% tổ hợp rẻ nhất" if ratios
+                  else "không tổ hợp C nào qua cả G1–G3")
+        out.append(f"- **{name}:** `done` ở {done}/{len(group)} biến thể; {spread}.")
     out += ["", "Khi cloud phải đếm bằng GPU, khoản GPU (khoảng $180/tháng ở P03) làm C đắt hơn D, vì D đếm ngay trên hộp. "
             "Con số đó giả định hộp chỉ có CPU vẫn kịp đếm 14 ảnh mỗi ngày với model nặng như vậy *(chưa kiểm chứng)*. "
             "Với model hiện tại (0,48 giây/ảnh trên CPU, báo cáo 17/10), biến thể CPU mới sát thực tế.", "",
@@ -254,8 +261,7 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8")                     # the labels are Vietnamese; Windows consoles default to cp1252
     args.out.write_text(render_summary(args.results), encoding="utf-8")
     d = decide(load_cost_rows(args.results / "cost.csv"))
-    print(d.status, "| winner:", _label(d.winner), round(d.winner["total_12m_usd"]),
-          "| best C:", _label(d.best_c) if d.best_c else None, round(d.ratio, 4) if d.ratio else None)
+    print(render_decision(d), "| ratio:", round(d.ratio, 4) if d.ratio else None)
 
 
 if __name__ == "__main__":

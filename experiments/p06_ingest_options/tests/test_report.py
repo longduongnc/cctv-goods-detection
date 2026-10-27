@@ -1,10 +1,34 @@
+import csv
+import shutil
+from pathlib import Path
+
 import pytest
 
-from ingest.report import decide, gate_label, render_main_table, robustness
+from ingest.report import decide, gate_label, render_main_table, render_summary, robustness
+
+RESULTS = Path(__file__).resolve().parents[1] / "results"
 
 
 def row(option, total, g1=True, g2=True, g3=True, camera="cam_4k_28", box="box_n100", **variant):
     return dict(option=option, camera=camera, box=box, total_12m_usd=total, g1=g1, g2=g2, g3=g3, base=True, **variant)
+
+
+def summary_with(tmp_path, change=lambda r: r):
+    """render_summary trên bản chép của results/, mỗi dòng cost.csv đã qua change(dòng)."""
+    for f in RESULTS.glob("*.csv"):
+        shutil.copy(f, tmp_path / f.name)
+    with open(RESULTS / "cost.csv", encoding="utf-8") as f:
+        rows = [change(r) for r in csv.DictReader(f)]
+    with open(tmp_path / "cost.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    return render_summary(tmp_path)
+
+
+def section(text, title):
+    """Phần chữ dưới một tiêu đề '## '."""
+    return text.split(f"## {title}")[1].split("\n## ")[0]
 
 
 def test_c_cheapest_is_done():
@@ -41,3 +65,21 @@ def test_robustness_decides_each_variant_on_its_own_rows():
         r["base"] = False                                   # biến thể không phải trường hợp gốc vẫn được xét
     status = {r["no_wifi_share"]: r["status"] for r in robustness(rows)}
     assert status == {0.0: "done", 1.0: "closed-fail"}
+
+
+def test_summary_says_c_is_over_the_threshold_when_it_is(tmp_path):
+    dearer = lambda r: dict(r, total_12m_usd=str(float(r["total_12m_usd"]) * 1.5)) if r["option"] == "C" else r
+    decision = section(summary_with(tmp_path, dearer), "1. Quyết định")
+    assert "`closed-fail`" in decision and "vượt ngưỡng 110%" in decision and "trong ngưỡng" not in decision
+
+
+def test_summary_when_no_c_passes_the_gates(tmp_path):
+    text = summary_with(tmp_path, lambda r: dict(r, g3="False") if r["option"] == "C" else r)
+    assert "`closed-fail`" in section(text, "1. Quyết định")
+    assert "Không tổ hợp C nào qua cả G1–G3" in section(text, "1. Quyết định")
+    assert "không tổ hợp C nào qua cả G1–G3" in section(text, "3. Độ vững")
+
+
+def test_summary_when_no_combination_passes(tmp_path):
+    text = summary_with(tmp_path, lambda r: dict(r, g2="False"))
+    assert "Không tổ hợp nào qua cả G1–G3" in section(text, "1. Quyết định")
