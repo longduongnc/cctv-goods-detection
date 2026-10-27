@@ -61,3 +61,14 @@ def test_a_note_saying_chua_kiem_chung_marks_the_value_unverified(tmp_path):
     s = load_sources(write(tmp_path, "a.b,1,u,https://x,2026-10-27,theo đại lý (chưa kiểm chứng)\n"
                                      "c.d,1,u,https://x,2026-10-27,datasheet\n"))
     assert s["a.b"].unverified and not s["c.d"].unverified
+
+
+def test_power_is_on_one_basis():
+    s = load_sources(SOURCES)
+    assert {s[k].unit for k in REQUIRED_KEYS if k.endswith(".power_w")} == {"W tối đa"}
+
+
+def test_the_dearest_items_name_a_second_source():
+    s = load_sources(SOURCES)
+    dearest = ("cam_4k_28.price_vnd", "box_rpi5.price_vnd", "box_n100.price_vnd", "box_orin.price_vnd")
+    assert not [k for k in dearest if "Nguồn 2" not in s[k].note]

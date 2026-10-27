@@ -250,8 +250,10 @@ def render_summary(results: Path) -> str:
             "bitrate trên 0,32 Mbps, nên kết luận về B không phụ thuộc con số này.",
             "- Clip điện thoại quay cầm tay; clip MERL trong repo là bản đã vẽ khung chú thích, độ phân giải 640×472. "
             "Chỉ báo E4 chỉ mang tính tham khảo.",
-            "- Giá OAK 4 S theo P03 ($949): trang Luxonis không hiện giá ngày 27/10. Giá mini PC N100 lấy từ Newegg cộng VAT "
-            "nhập khẩu 10%, chưa gồm vận chuyển.",
+            "- Giá OAK 4 S theo P03 ($949): trang Luxonis không hiện giá ngày 27/10. Mini PC N100 (ZOTAC CI337 nano, "
+            "8 GB/256 GB) là hàng đặt trước ở Hacom và sắp về ở Tin Học Ngôi Sao; board Pi 5 8 GB hết hàng ở Cytron, còn ở "
+            "hshop.vn. Mỗi hộp lấy giá cao hơn trong hai nguồn.",
+            "- Điện của camera mới và hộp tính ở công suất tối đa, chạy 24 giờ mỗi ngày, nên là cận trên.",
             "- Không tính công lắp đặt, bảo trì, gán nhãn (hoang chốt 27/10).", "",
             "## 9. Giả định", "",
             "Giá, thông số và nguồn: `inputs/sources.csv`. Các giả định của kế hoạch (trường hợp gốc, lấy mức giá cao, quy đổi "

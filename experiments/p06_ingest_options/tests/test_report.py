@@ -98,3 +98,7 @@ def test_summary_marks_camera_buffering_unverified():
 
 def test_summary_does_not_call_forum_bitrates_the_makers():
     assert "nhà sản xuất" not in render_summary(RESULTS)
+
+
+def test_limits_state_the_power_basis():
+    assert "công suất tối đa" in section(render_summary(RESULTS), "8. Giới hạn")
