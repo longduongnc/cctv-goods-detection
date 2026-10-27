@@ -33,6 +33,11 @@ def passes_g3(carton_px_at_2m: float) -> bool:
     return carton_px_at_2m >= G3_MIN_PX
 
 
+def min_carton_cm(px_cm: float) -> float:
+    """Shortest carton that still reaches G3_MIN_PX at that sharpness."""
+    return G3_MIN_PX / px_cm
+
+
 def table(sources, carton_cm: float) -> list[dict]:
     """One row per camera and distance; g3 is judged at 2 m and repeated on every row of that camera."""
     rows = []
