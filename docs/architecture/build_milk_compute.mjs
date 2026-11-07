@@ -1,122 +1,127 @@
-// milk-camera — Tầng 2 Xử lý: chi tiết compute (bản demo, chưa duyệt).
-// Dựng theo khuôn examples/aws/build_multiaz_template.mjs của drawio-ai-kit:
-// Region → VPC → AZ → private subnet → worker node → pod; mỗi ứng dụng một khung nét đứt trải 3 AZ.
+// milk-camera — chi tiết xử lý, giai đoạn đầu (HOANG-P07, 07/11/2026): hộp tại tiệm, chuỗi model, vòng human audit.
+// Bản cũ cho kiến trúc video + EKS (HOANG-P02) ở commit 82760d2.
 // Chạy: node build_milk_compute.mjs bake
+//       DRAWIO_CLI=".../draw.io.exe" drawio-ai render milk-aws-compute-detail.drawio -o milk-aws-compute-detail.png --scale 1.5
 import { writeFileSync } from "node:fs";
 import { Diagram } from "file:///C:/Users/huyho/AppData/Roaming/npm/node_modules/drawio-ai-kit/src/builder.mjs";
 import {
-  group, frame, icon, box, phantom, band, endpoint, ossBox, renderTree,
+  group, frame, icon, box, phantom, stage, endpoint, ossBox, onpremFrame, renderTree,
 } from "file:///C:/Users/huyho/AppData/Roaming/npm/node_modules/drawio-ai-kit/src/layout-engine.mjs";
 import { THEME } from "file:///C:/Users/huyho/AppData/Roaming/npm/node_modules/drawio-ai-kit/src/theme.mjs";
 
 const OUT = "C:/Users/huyho/OneDrive/Desktop/milk-camera/cctv-goods-detection/docs/architecture/milk-aws-compute-detail.drawio";
 const CONTRACT = process.argv[2] ?? "scaffold";
-const d = new Diagram("network", { contract: CONTRACT });
+const d = new Diagram("pipeline", { contract: CONTRACT });
 
-const AZS = ["1", "2", "3"];
-const POD_GAP = 64;   // chừa chỗ cho nhãn dưới icon + khung nét đứt của từng ứng dụng
+const step = (id, text, w = 250, h = 56) => ossBox(id, text, { w, h });
 
-// ---- mỗi AZ: một private subnet, trong đó một node GPU và một node CPU ----
-const gpuNode = (s) => group(`gpu_${s}`, "group_ec2_instance_contents", "Node GPU · g6.xlarge · 1× L4", { dir: "col", gap: POD_GAP, align: "center", pad: 30 }, [
-  icon(`s1_${s}`, "container_1", "pod s1-locate<br>LocateAnything-3B"),
-  icon(`s4_${s}`, "vllm", "pod s4-read-label<br>Qwen2.5-VL-7B · vLLM"),
-]);
-const cpuNode = (s) => group(`cpu_${s}`, "group_ec2_instance_contents", "Node CPU · general-purpose", { dir: "col", gap: POD_GAP, align: "center", pad: 30 }, [
-  icon(`orch_${s}`, "container_1", "pod orchestrator<br>S2 bám vết · S3 · S5"),
-]);
-const azCol = (s) => group(`az_${s}`, "group_availability_zone", `AZ ${s}`, { dir: "col", gap: 14, align: "center" }, [
-  group(`prv_${s}`, "group_subnet", "Private subnet · không NAT", { dir: "col", gap: 40, align: "center", pad: 30 }, [gpuNode(s), cpuNode(s)]),
+// ---- hộp tại tiệm: khung chữ, nên đường dọc không đè nhãn ----
+const shop = onpremFrame("shop", "Hộp lọc tại tiệm · mỗi mốc 15 phút", [
+  step("cam", "<b>CCTV 4K (Datagent lắp)</b><br>luồng RTSP, H.265"),
+  step("e1", "<b>1 · Lấy khung</b><br>1 khung/giây trong 60 giây quanh mốc"),
+  step("e2", "<b>2 · Bỏ khung có người che kệ</b><br>YOLO26s COCO, lớp person"),
+  step("e3", "<b>3 · Làm mờ mặt</b><br>YuNet"),
+  step("e4", "<b>4 · Chọn khung nét nhất</b><br>phương sai Laplacian"),
+  step("e5", "<b>5 · Gửi 1 ảnh, khoảng 1,3 MB</b><br>đệm SSD 256 GB, xoá khi S3 đã nhận"),
+], { dir: "col", gap: 26, align: "center" });
+
+// ---- xử lý mỗi đêm ----
+const container = frame("container", "Container model · không có mạng", { dir: "row", gap: 34, fill: THEME.base, stroke: THEME.bandStroke, align: "center" }, [
+  step("m1", "<b>1 · Tìm hộp</b><br>YOLO26s 1280 px, 12 lớp", 190, 70),
+  step("m2", "<b>2 · Tra SKU</b><br>DINOv2-S + LanceDB<br>10 láng giềng", 190, 70),
+  step("m3", "<b>3 · Đếm theo SKU</b><br>unit_score =<br>conf YOLO × support", 190, 70),
+  step("m4", "<b>4 · Xuất CV Output</b><br>gắn cờ: dưới 0,7 ·<br>sku_id NULL · số lạ", 190, 70),
 ]);
 
-const vpc = group("vpc", "group_vpc", "VPC 10.0.0.0/16 · 3 AZ · chỉ private subnet", { dir: "col", gap: 30, align: "center" }, [
-  phantom("azrow", "", { dir: "row", gap: 40, align: "top", header: 0 }, AZS.map(azCol)),
-  phantom("vpcsvc", "", { dir: "row", gap: 40, align: "center", header: 0 }, [
-    icon("keda", "autoscaling", "KEDA (trong cụm)<br>co giãn pod theo hàng đợi"),
-    icon("vpce", "vpc_privatelink", "VPC endpoints"),
-    ossBox("vpcelist", "<b>Interface:</b> ecr.api · ecr.dkr · sts · eks · eks-auth<br>ec2 · logs · sqs · kinesis-streams · kms<br><b>Gateway:</b> s3", { w: 290, h: 70 }),
+const night = stage("night", 1, "Mỗi đêm · 14 ảnh/tiệm", [
+  phantom("schedrow", "", { dir: "row", gap: 60, header: 0, pad: 0, align: "top" }, [
+    icon("sched", "eventbridge_scheduler", "EventBridge<br>Scheduler"),
+    icon("lsel", "lambda", "Lambda chọn<br>ảnh tốt nhất mỗi giờ"),
   ]),
-]);
-
-// ---- dịch vụ quản lý ngoài VPC ----
-const inFrame = frame("in", "Đầu vào · ngoài VPC", { dir: "row", gap: 40, fill: THEME.base, stroke: "#82B366" }, [
-  phantom("inA", "", { dir: "col", gap: 60, header: 0, pad: 0 }, [
-    icon("sqs1", "sqs", "SQS q-segments<br>+ DLQ"),
-    icon("kvs", "kinesis_video_streams", "Kinesis Video Streams"),
+  phantom("nightrow", "", { dir: "row", gap: 60, header: 0, pad: 0, align: "center" }, [
+    icon("s3in", "s3", "S3 ảnh thô<br>56 ảnh/tiệm/ngày"),
+    group("vpc", "group_vpc", "VPC riêng · chỉ private subnet", { dir: "row", gap: 50, align: "center" }, [
+      icon("vpce", "endpoints", "S3 gateway<br>endpoint"),
+      icon("sm", "sagemaker", "SageMaker Async<br>ml.c5.xlarge (CPU)<br>0 → 1 máy"),
+      container,
+    ]),
   ]),
-  icon("lambda", "lambda", "Lambda frame-fetcher<br>ngoài VPC"),
-  phantom("inC", "", { dir: "col", gap: 60, header: 0, pad: 0 }, [
-    icon("s3frames", "s3", "S3 frames<br>khung JPEG"),
-    icon("sqs2", "sqs", "SQS q-infer<br>+ DLQ"),
+], { gap: 34, align: "left" });
+
+// ---- kết quả ----
+const results = stage("results", 2, "Kết quả", [
+  phantom("resrow", "", { dir: "row", gap: 60, header: 0, pad: 0, align: "top" }, [
+    icon("sns", "sns", "SNS<br>xong / lỗi"),
+    icon("lres", "lambda", "Lambda ghi kết quả<br>chạy lại không<br>sinh dòng trùng"),
+    phantom("sinks", "", { dir: "col", gap: 50, header: 0, pad: 0, align: "center" }, [
+      icon("tables", "s3_tables", "S3 Tables<br>cv_output"),
+      icon("ddb", "dynamodb", "DynamoDB<br>hàng đợi low confidence"),
+    ]),
   ]),
-]);
+], { gap: 34, align: "center" });
 
-const outFrame = frame("out", "Đầu ra · ngoài VPC", { dir: "col", gap: 40, fill: THEME.base, stroke: "#9673A6" }, [
-  icon("kds", "kinesis_data_streams", "Kinesis Data Streams<br>sự kiện lấy sữa"),
-  icon("s3derived", "s3", "S3 derived<br>boxes · ảnh cắt"),
-  icon("cw", "cloudwatch_2", "CloudWatch<br>log · metric · cảnh báo"),
-]);
+// ---- vòng human audit ----
+const layer1 = stage("layer1", 3, "Tầng 1 · gán nhãn: dòng bị gắn cờ của 1 ảnh/tiệm/ngày, khoảng 130–160 dòng mỗi chu kỳ 14 ngày (đề xuất)", [
+  icon("web", "amplify", "Website<br>hàng đợi low confidence"),
+  endpoint("counters", "<b>ĐỘI ĐẾM DATAGENT</b><br>sửa SKU và số đếm", { w: 170, h: 70 }),
+  icon("corr", "s3_tables", "S3 Tables<br>corrections"),
+  icon("cvat", "ec2", "EC2 · CVAT<br>vẽ khung, chỉ bật khi cần"),
+  icon("train", "sagemaker_train", "SageMaker Training<br>ml.g6.xlarge"),
+  icon("gate", "sagemaker", "Chấm tập kiểm định cố định<br>chỉ nhận nếu điểm không giảm"),
+  icon("reg", "sagemaker_model", "Model Registry<br>→ cập nhật endpoint"),
+], { dir: "row", gap: 70, align: "center" });
 
-const shared = band("shared", "Dùng chung · cụm EKS đọc qua VPC endpoint", [
-  icon("ecr", "ecr", "ECR<br>image pod"),
-  icon("s3models", "s3", "S3 models<br>weights nạp sẵn"),
-  icon("kms", "key_management_service", "KMS<br>mã hoá S3 · SQS · log"),
-  icon("iam", "identity_and_access_management", "IAM + Pod Identity<br>mỗi pod một quyền"),
-]);
+const layer2 = stage("layer2", 0, "Tầng 2 · đo KPI: đếm đủ kệ sữa mỗi tiệm, mỗi chu kỳ (đề xuất, chờ Datagent xác nhận)", [
+  endpoint("field", "<b>ĐỘI THỰC ĐỊA DATAGENT</b><br>đếm tay, số chuẩn", { w: 190, h: 70 }),
+  icon("audit", "s3_tables", "S3 Tables<br>human_audit"),
+  icon("athena", "athena", "Athena<br>tính 12 KPI"),
+  box("why", "Chỉ xem dòng low confidence thì không đo được KPI:<br>trên ảnh mô phỏng, ngưỡng 0,70 bắt 96% phát hiện sai<br>nhưng chỉ 35% dòng đếm sai; SKU bị bỏ sót không có dòng để gắn cờ", { w: 400, h: 70, fill: THEME.note, stroke: THEME.noteStroke, fs: 11 }),
+], { dir: "row", gap: 70, align: "center" });
 
-const note = box("note",
-  "<b>Đề xuất · chưa duyệt</b><br>" +
-  "• KVS không có VPC endpoint dùng được (phải xin AWS,<br>tối đa 10 stream) → Lambda ngoài VPC lấy khung,<br>cụm EKS không cần NAT<br>" +
-  "• Chỉ xoá message SQS sau khi đã ghi sự kiện;<br>lỗi 3 lần → DLQ<br>" +
-  "• Mã sự kiện = camera + thời điểm → chạy lại không trùng<br>" +
-  "• g6.xlarge đủ VRAM cho cả hai model: chưa đo tải thật<br>" +
-  "• S1 ~42 s/khung vẫn là nút thắt chi phí",
-  { w: 330, h: 190, fill: THEME.note, stroke: THEME.noteStroke, fs: 11 });
-
-const region = group("region", "group_region", "Region Tokyo (ap-northeast-1)", { dir: "col", gap: 30, align: "center" }, [
-  phantom("main", "", { dir: "row", gap: 60, align: "center", header: 0 }, [
-    phantom("inwrap", "", { dir: "col", header: 0, pad: 0 }, [inFrame]),
-    vpc,
-    phantom("outwrap", "", { dir: "col", header: 0, pad: 0 }, [outFrame]),
-  ]),
-  phantom("bottom", "", { dir: "row", gap: 60, align: "top", header: 0 }, [shared, note]),
+const region = group("region", "group_region", "Region Tokyo (ap-northeast-1)", { dir: "col", gap: 40, align: "center" }, [
+  phantom("mainrow", "", { dir: "row", gap: 60, align: "center", header: 0 }, [night, results]),
+  layer1,
+  layer2,
 ]);
 const cloud = group("aws", "group_aws_cloud_alt", "AWS Cloud", { dir: "col", gap: 14 }, [region]);
 
-const tree = phantom("root", "", { dir: "row", gap: 60, align: "center", header: 0, pad: 10 }, [
-  endpoint("src", "<b>TỪ TẦNG 1</b><br>IoT Rule:<br>“có đoạn mới”", { w: 150, h: 80 }),
-  cloud,
-  endpoint("sink", "<b>SANG TẦNG 3–4</b><br>Firehose · Lambda<br>→ S3 Tables · DynamoDB", { w: 190, h: 80 }),
-]);
+const tree = phantom("root", "", { dir: "row", gap: 70, align: "top", header: 0, pad: 10 }, [shop, cloud]);
 
 renderTree(d, tree, [40, 80]);
-d.title("milk-camera — Tầng 2 Xử lý: chi tiết compute (bản demo 23/09, chưa duyệt)");
+d.title("milk-camera — Chi tiết xử lý: hộp tại tiệm, chuỗi model, vòng human audit (HOANG-P07, 07/11/2026)");
 
-// khung nét đứt: cả cụm EKS, rồi từng ứng dụng trải qua 3 AZ (vẽ TRƯỚC khi nối để làm đích cho mũi tên)
-d.clusterBox("eksstack", AZS.flatMap((s) => [`gpu_${s}`, `cpu_${s}`]),
-  "Amazon EKS Auto Mode · API endpoint private · Pod Identity", { icon: "eks", stroke: "#ED7100", padTop: 34, pad: 14 });
-const app = (id, base, label, stroke) =>
-  d.clusterBox(id, AZS.map((s) => `${base}_${s}`), label, { icon: null, stroke, padTop: 24, pad: 40 });
-app("comp_s1", "s1", "S1 · Deployment GPU", "#6666FF");
-app("comp_s4", "s4", "S4 · Deployment GPU", "#16A34A");
-app("comp_orch", "orch", "orchestrator · Deployment CPU", "#C2185B");
-
-// luồng chính
-d.link("src", "sqs1", "đoạn mới", { flow: true });
-d.link("sqs1", "lambda", "kích hoạt", { flow: true });
-d.link("kvs", "lambda", "GetImages");
-d.link("lambda", "s3frames", "ghi khung");
-d.link("lambda", "sqs2", "việc suy luận", { flow: true });
-d.link("sqs2", "orch_1", "nhận việc", { flow: true });
-d.link("s3frames", "orch_1", "đọc khung");
-d.link("orch_2", "s1_2", "gọi S1");
-d.link("orch_2", "s4_2", "gọi S4");
-d.link("orch_3", "kds", "sự kiện", { flow: true });
-d.link("orch_3", "s3derived", "boxes · ảnh cắt");
-d.link("kds", "sink", "");
-// phụ trợ (nét đứt)
-d.link("keda", "orch_2", "scale", { dash: true });
+// hộp tại tiệm
+d.link("cam", "e1", "");
+d.link("e1", "e2", "");
+d.link("e2", "e3", "");
+d.link("e3", "e4", "");
+d.link("e4", "e5", "");
+d.link("e5", "s3in", "TLS", { flow: true });
+// mỗi đêm
+d.link("sched", "lsel", "");
+d.link("lsel", "sm", "", { dash: true, route: { es: "R", en: "T", kind: "Lhv" } });
+d.link("s3in", "vpce", "đọc ảnh", { dash: true });
+d.link("vpce", "sm", "");
+d.link("sm", "m1", "");
+d.link("m1", "m2", "");
+d.link("m2", "m3", "");
+d.link("m3", "m4", "");
+d.link("m4", "sns", "ghi S3");
+d.link("sns", "lres", "");
+d.link("lres", "tables", "");
+d.link("lres", "ddb", "");
+// tầng 1
+d.link("web", "counters", "");
+d.link("counters", "corr", "bản sửa");
+d.link("corr", "cvat", "");
+d.link("cvat", "train", "nhãn");
+d.link("train", "gate", "");
+d.link("gate", "reg", "");
+// tầng 2
+d.link("field", "audit", "");
+d.link("audit", "athena", "");
 
 const res = d.validate();
 console.log("VALIDATE:", JSON.stringify({ ok: res.ok, errors: res.errors, warnings: res.warnings, advice: res.audit.advice }, null, 1));
-writeFileSync(OUT, d.mxfile("Tầng 2 · compute"));
+writeFileSync(OUT, d.mxfile("Chi tiết xử lý"));
 console.log("WROTE", OUT, "contract:", CONTRACT);
